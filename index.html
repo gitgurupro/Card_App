@@ -399,34 +399,9 @@ function load(){
   try{
     const d=JSON.parse(localStorage.getItem('vc3')||'null');
     if(d&&d.cards){S.cards=d.cards;S.offers=d.offers||[];}
-    else seedData();
-  }catch(e){seedData();}
+    // No seed data — starts empty for new users
+  }catch(e){}
   S.offers.forEach(o=>ensureCurrentInstance(o));
-}
-
-function seedData(){
-  const c1='c1',c2='c2';
-  S.cards=[
-    {id:c1,bank:'Bank of Maharashtra',type:'Credit',last4:'4521',first6:'472381',grad:0,image:null},
-    {id:c2,bank:'HDFC Bank',type:'Debit',last4:'8832',first6:'601200',grad:4,image:null},
-  ];
-  S.offers=[
-    {id:'o1',cardId:c1,name:'Spa Session',cat:'spa',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o2',cardId:c1,name:'Golf Round',cat:'golf',cycle:3,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o3',cardId:c1,name:'OTT Subscription',cat:'ott',cycle:12,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o4',cardId:c1,name:'Health Checkup',cat:'health',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o5',cardId:c1,name:'Gym Membership',cat:'gym',cycle:3,tradeable:false,lifecycle:'paused',lcNote:'Bank paused from Q4 2026',instances:[]},
-    {id:'o6',cardId:c1,name:'Cab Credits',cat:'cab',cycle:3,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o7',cardId:c2,name:'Lounge Access',cat:'lounge',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o8',cardId:c2,name:'Food Voucher',cat:'food',cycle:1,tradeable:true,lifecycle:'ended',lcNote:'Discontinued Oct 2026',instances:[]},
-    {id:'o9',cardId:c2,name:'Shopping Offer',cat:'shopping',cycle:6,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
-  ];
-  S.offers.forEach(o=>ensureCurrentInstance(o));
-  // Seed: Golf redeemed this cycle
-  const golf=S.offers.find(o=>o.id==='o2');
-  const gi=getCurrentInstance(golf);
-  if(gi){gi.status='redeemed';gi.redeemDate=todayStr();const u=new Date();u.setDate(u.getDate()+30);gi.useByDate=`${u.getFullYear()}-${String(u.getMonth()+1).padStart(2,'0')}-${String(u.getDate()).padStart(2,'0')}`;}
-  save();
 }
 load();
 
