@@ -2,784 +2,1004 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#0F172A">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080C14">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>VaultCard — Card & Offer Manager</title>
+<title>VaultCard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0F172A;--bg2:#1E293B;--bg3:#273449;
-  --violet:#7C3AED;--violet-l:#9D5FFF;--violet-d:#5B21B6;
-  --coral:#F43F5E;--emerald:#10B981;--amber:#F59E0B;
-  --text:#F8FAFC;--text2:#94A3B8;--text3:#64748B;
-  --border:#2D3F55;--radius:16px;--tab-h:68px;
-  --font:'Inter',sans-serif;
+  --bg:#080C14;--bg2:#111827;--bg3:#1C2536;--bg4:#242F45;
+  --v:#6D5FFD;--vl:#8B7FFF;--vd:#4C3FD4;
+  --em:#0ECB81;--am:#F0B429;--co:#F05252;--bl:#3B9EFF;
+  --text:#EAECF4;--t2:#8892A4;--t3:#4E5A6E;
+  --bd:#1E2A3D;--r:14px;--tab:64px;
+  --ff:'Inter',sans-serif;
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.5;overflow:hidden}
-/* APP SHELL */
-#app{display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto;position:relative;background:var(--bg)}
-#view{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--tab-h) + 8px);scrollbar-width:none}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--ff);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+#app{display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto;position:relative;overflow:hidden}
+#view{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--tab) + 12px);scrollbar-width:none}
 #view::-webkit-scrollbar{display:none}
+
 /* TOP BAR */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 8px;position:sticky;top:0;z-index:10;background:linear-gradient(to bottom,var(--bg) 80%,transparent)}
-.topbar h1{font-size:22px;font-weight:700;letter-spacing:-0.5px}
-.topbar h1 span{color:var(--violet-l)}
-.topbar-actions{display:flex;gap:8px}
-.icon-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:18px;transition:all .15s}
-.icon-btn:hover{background:var(--bg3);color:var(--text)}
-/* BOTTOM TAB BAR */
-#tabbar{height:var(--tab-h);display:flex;align-items:flex-start;padding-top:8px;background:rgba(15,23,42,0.95);backdrop-filter:blur(12px);border-top:1px solid var(--border);position:sticky;bottom:0;z-index:20}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px;border:none;background:none;color:var(--text3);font-size:10px;font-family:var(--font);font-weight:500;transition:color .15s}
-.tab .tab-icon{font-size:20px;line-height:1}
-.tab.active{color:var(--violet-l)}
-.tab.active .tab-icon{filter:drop-shadow(0 0 6px var(--violet))}
-/* SECTION HEADERS */
-.section-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase;padding:20px 20px 8px}
-/* BANK CARDS */
-.cards-scroll{display:flex;gap:16px;padding:4px 20px 20px;overflow-x:auto;scrollbar-width:none}
-.cards-scroll::-webkit-scrollbar{display:none}
-.bank-card{min-width:300px;height:178px;border-radius:20px;padding:20px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;position:relative;overflow:hidden;flex-shrink:0;transition:transform .2s,box-shadow .2s}
-.bank-card:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,0,0,0.4)}
-.bank-card .card-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:20px;opacity:0.35}
-.bank-card .card-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,0.4),rgba(0,0,0,0.1));border-radius:20px}
-.bank-card .card-content{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;justify-content:space-between}
-.card-bank{font-size:13px;font-weight:600;opacity:0.85;letter-spacing:0.03em}
-.card-type-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;margin-top:4px;width:fit-content}
-.card-digits{font-size:18px;font-weight:700;letter-spacing:0.12em;font-variant-numeric:tabular-nums}
-.card-meta{display:flex;justify-content:space-between;align-items:flex-end}
-.card-label-s{font-size:9px;opacity:0.6;text-transform:uppercase;letter-spacing:0.08em}
-.card-val-s{font-size:13px;font-weight:600}
-.card-offers-count{background:rgba(255,255,255,0.2);backdrop-filter:blur(8px);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600}
-/* ADD CARD BUTTON */
-.add-card-btn{min-width:300px;height:178px;border-radius:20px;border:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text3);flex-shrink:0;transition:all .2s}
-.add-card-btn:hover{border-color:var(--violet);color:var(--violet-l);background:rgba(124,58,237,0.05)}
-.add-card-btn .plus{font-size:32px;line-height:1}
-/* COUPON LIST */
-.coupon-list{padding:0 20px;display:flex;flex-direction:column;gap:10px}
-.coupon-item{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
-.coupon-item:hover{background:var(--bg3);border-color:var(--border)}
-.coupon-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
-.coupon-item.status-available::before{background:var(--emerald)}
-.coupon-item.status-redeemed::before{background:var(--amber)}
-.coupon-item.status-used::before{background:var(--violet)}
-.coupon-item.status-sold::before{background:var(--coral)}
-.coupon-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.coupon-info{flex:1;min-width:0}
-.coupon-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.coupon-sub{font-size:12px;color:var(--text2);margin-top:2px}
-.coupon-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
-.status-chip{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600}
-.chip-available{background:rgba(16,185,129,0.15);color:#34D399;border:1px solid rgba(16,185,129,0.3)}
-.chip-redeemed{background:rgba(245,158,11,0.15);color:#FCD34D;border:1px solid rgba(245,158,11,0.3)}
-.chip-used{background:rgba(124,58,237,0.15);color:var(--violet-l);border:1px solid rgba(124,58,237,0.3)}
-.chip-sold{background:rgba(244,63,94,0.15);color:#FB7185;border:1px solid rgba(244,63,94,0.3)}
-.coupon-date{font-size:11px;color:var(--text3)}
-.coupon-urgent{color:var(--coral);font-size:11px;font-weight:600}
-/* CATEGORY FILTER */
-.cat-scroll{display:flex;gap:8px;padding:4px 20px 16px;overflow-x:auto;scrollbar-width:none}
+.topbar{padding:18px 18px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;background:linear-gradient(180deg,var(--bg) 75%,transparent)}
+.tbar-title{font-size:20px;font-weight:800;letter-spacing:-0.4px}
+.tbar-title em{color:var(--vl);font-style:normal}
+.tbar-actions{display:flex;gap:8px}
+.ibtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--bd);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:16px;transition:.15s;flex-shrink:0}
+.ibtn:hover{background:var(--bg4);color:var(--text)}
+
+/* TAB BAR */
+#tabbar{height:var(--tab);display:flex;background:rgba(8,12,20,.96);backdrop-filter:blur(16px);border-top:1px solid var(--bd);position:relative;z-index:20;flex-shrink:0}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--t3);font-size:10px;font-family:var(--ff);font-weight:600;letter-spacing:0.02em;padding:6px 2px;transition:.15s;position:relative}
+.tab-ic{font-size:19px;line-height:1;transition:.15s}
+.tab.active{color:var(--vl)}
+.tab.active .tab-ic{filter:drop-shadow(0 0 8px rgba(109,95,253,.7))}
+.notif{width:6px;height:6px;background:var(--co);border-radius:50%;position:absolute;top:8px;right:calc(50% - 14px)}
+
+/* SECTION LABEL */
+.slabel{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:0.08em;padding:18px 18px 8px;text-transform:uppercase}
+
+/* CARD CAROUSEL */
+.card-scroll{display:flex;gap:14px;padding:2px 18px 18px;overflow-x:auto;scrollbar-width:none}
+.card-scroll::-webkit-scrollbar{display:none}
+.bcard{min-width:295px;height:170px;border-radius:18px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;position:relative;overflow:hidden;flex-shrink:0;transition:transform .2s,box-shadow .2s;border:1px solid rgba(255,255,255,.06)}
+.bcard:active{transform:scale(0.98)}
+.bcard-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:17px}
+.bcard-overlay{position:absolute;inset:0;border-radius:17px}
+.bcard-content{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;justify-content:space-between}
+.bcard-bank{font-size:12px;font-weight:700;opacity:.8;letter-spacing:.04em}
+.bcard-type{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;margin-top:3px;width:fit-content}
+.bcard-digits{font-size:16px;font-weight:700;letter-spacing:.14em}
+.bcard-bottom{display:flex;justify-content:space-between;align-items:flex-end}
+.bcard-id{font-size:9px;opacity:.55;text-transform:uppercase;letter-spacing:.06em}
+.bcard-id span{display:block;font-size:12px;font-weight:700;opacity:1;margin-top:2px}
+.bcard-badge{background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700}
+.add-bcard{min-width:295px;height:170px;border-radius:18px;border:2px dashed var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--t3);flex-shrink:0;transition:.2s}
+.add-bcard:hover{border-color:var(--v);color:var(--vl);background:rgba(109,95,253,.04)}
+.add-bcard-plus{font-size:28px;line-height:1}
+
+/* OFFER ITEMS */
+.offer-list{padding:0 18px;display:flex;flex-direction:column;gap:8px}
+.offer-item{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.offer-item:active{background:var(--bg3)}
+.offer-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.s-available::before{background:var(--em)}
+.s-redeemed::before{background:var(--am)}
+.s-used::before{background:var(--v)}
+.s-sold::before{background:var(--bl)}
+.s-skipped::before{background:var(--t3)}
+.offer-ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.offer-info{flex:1;min-width:0}
+.offer-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.offer-sub{font-size:11px;color:var(--t2);margin-top:1px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.offer-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.chip{display:inline-flex;align-items:center;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;letter-spacing:.02em}
+.chip-available{background:rgba(14,203,129,.12);color:#34D399;border:1px solid rgba(14,203,129,.25)}
+.chip-redeemed{background:rgba(240,180,41,.12);color:#FCD34D;border:1px solid rgba(240,180,41,.25)}
+.chip-used{background:rgba(109,95,253,.12);color:var(--vl);border:1px solid rgba(109,95,253,.25)}
+.chip-sold{background:rgba(59,158,255,.12);color:#93C5FD;border:1px solid rgba(59,158,255,.25)}
+.chip-skipped{background:rgba(78,90,110,.12);color:var(--t2);border:1px solid var(--bd)}
+.chip-paused{background:rgba(240,82,82,.12);color:#FCA5A5;border:1px solid rgba(240,82,82,.25)}
+.chip-ended{background:rgba(78,90,110,.12);color:var(--t2);border:1px solid var(--bd)}
+.offer-date{font-size:10px;color:var(--t3)}
+.offer-urgent{color:var(--co);font-size:10px;font-weight:700;margin-top:1px}
+.offer-paused-banner{background:rgba(240,82,82,.08);border:1px solid rgba(240,82,82,.2);border-radius:8px;padding:6px 10px;font-size:11px;color:#FCA5A5;margin-top:6px;width:100%}
+.offer-ended-banner{background:rgba(78,90,110,.08);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--t2);margin-top:6px;width:100%}
+
+/* LIFECYCLE BADGE on offer item */
+.lc-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.lc-active{background:var(--em)}
+.lc-paused{background:var(--co)}
+.lc-ended{background:var(--t3)}
+
+/* CAT FILTER */
+.cat-scroll{display:flex;gap:6px;padding:2px 18px 14px;overflow-x:auto;scrollbar-width:none}
 .cat-scroll::-webkit-scrollbar{display:none}
-.cat-pill{display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
-.cat-pill.active{background:var(--violet-d);border-color:var(--violet);color:#fff}
-.cat-pill:hover:not(.active){background:var(--bg3);color:var(--text)}
-/* UPCOMING TIMELINE */
-.timeline{padding:0 20px;display:flex;flex-direction:column;gap:0}
-.timeline-group{margin-bottom:20px}
-.timeline-date{font-size:12px;font-weight:600;color:var(--text3);letter-spacing:0.05em;padding:4px 0 8px;display:flex;align-items:center;gap:8px}
-.timeline-date::after{content:'';flex:1;height:1px;background:var(--border)}
-.timeline-item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.tl-icon{font-size:18px;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center}
-.tl-info{flex:1}
-.tl-name{font-size:14px;font-weight:600}
-.tl-card{font-size:12px;color:var(--text2)}
-.tl-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
-.badge-q{background:rgba(16,185,129,0.15);color:#34D399}
-.badge-h{background:rgba(245,158,11,0.15);color:#FCD34D}
-.badge-y{background:rgba(124,58,237,0.15);color:var(--violet-l)}
-/* MODAL / SHEET */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;max-width:430px;margin:0 auto}
-.overlay.open{opacity:1;pointer-events:all}
-.sheet{background:var(--bg2);border-radius:24px 24px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:0 0 32px;transform:translateY(100%);transition:transform .3s cubic-bezier(0.32,0.72,0,1)}
-.overlay.open .sheet{transform:translateY(0)}
-.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:4px;margin:12px auto 0}
-.sheet-header{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 16px}
-.sheet-title{font-size:19px;font-weight:700}
-.sheet-close{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:none;color:var(--text2);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.sheet-body{padding:0 20px}
-/* FORMS */
-.form-group{margin-bottom:16px}
-.form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px}
-.form-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:15px;font-family:var(--font);outline:none;transition:border-color .15s;-webkit-appearance:none;color-scheme:dark}
-.form-input:focus{border-color:var(--violet)}
-.form-input::placeholder{color:var(--text3)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:15px;font-family:var(--font);outline:none;cursor:pointer;-webkit-appearance:none;color-scheme:dark}
-.form-select:focus{border-color:var(--violet)}
-/* IMAGE UPLOAD */
-.img-upload-area{width:100%;height:140px;border:2px dashed var(--border);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text3);position:relative;overflow:hidden;transition:all .2s}
-.img-upload-area:hover{border-color:var(--violet);color:var(--violet-l)}
-.img-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.img-upload-area img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px}
-.img-upload-area .img-label{position:relative;z-index:1;font-size:13px;font-weight:500;pointer-events:none}
-.img-upload-area .img-icon{font-size:28px;pointer-events:none}
-.img-remove{position:absolute;top:8px;right:8px;z-index:2;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-/* COLOR PRESETS FOR CARD */
-.color-presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.color-preset{width:40px;height:40px;border-radius:10px;cursor:pointer;border:2px solid transparent;transition:all .15s;position:relative}
-.color-preset.selected::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700}
-/* CATEGORY GRID FOR OFFER */
-.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
-.cat-option{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);cursor:pointer;transition:all .15s}
-.cat-option:hover{background:var(--bg2);border-color:var(--violet)}
-.cat-option.selected{background:rgba(124,58,237,0.15);border-color:var(--violet)}
-.cat-option .cat-em{font-size:22px}
-.cat-option .cat-nm{font-size:10px;color:var(--text2);font-weight:500}
-/* REDEEM MODAL */
-.redeem-hero{text-align:center;padding:20px 20px 0}
-.redeem-emoji{font-size:52px;margin-bottom:8px}
-.redeem-title{font-size:20px;font-weight:700;margin-bottom:4px}
-.redeem-sub{font-size:14px;color:var(--text2);margin-bottom:20px}
-/* BUTTONS */
-.btn{width:100%;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;transition:all .15s}
-.btn-primary{background:linear-gradient(135deg,var(--violet),var(--violet-l));color:#fff}
-.btn-primary:hover{opacity:0.9;transform:translateY(-1px)}
-.btn-primary:active{transform:translateY(0)}
-.btn-secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
-.btn-secondary:hover{color:var(--text);background:var(--bg)}
-.btn-danger{background:rgba(244,63,94,0.15);color:var(--coral);border:1px solid rgba(244,63,94,0.3)}
-.btn-sm{width:auto;padding:8px 16px;font-size:14px;border-radius:10px}
-.btn-gap{display:flex;flex-direction:column;gap:10px;padding:0 20px;margin-top:16px}
-/* EMPTY STATE */
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:60px 40px;text-align:center}
-.empty-state .empty-icon{font-size:48px}
-.empty-state .empty-title{font-size:18px;font-weight:600}
-.empty-state .empty-sub{font-size:14px;color:var(--text2);line-height:1.6}
-/* DIVIDER */
-.divider{height:1px;background:var(--border);margin:16px 20px}
+.cpill{display:flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;border:1px solid var(--bd);background:var(--bg2);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;flex-shrink:0}
+.cpill.active{background:rgba(109,95,253,.2);border-color:var(--v);color:var(--vl)}
+
 /* TOGGLE GROUP */
-.toggle-group{display:flex;background:var(--bg3);border-radius:12px;padding:4px;gap:4px}
-.toggle-opt{flex:1;padding:8px;border-radius:8px;border:none;background:none;color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all .15s;text-align:center}
-.toggle-opt.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.3)}
-/* NOTIFICATION BADGE */
-.notif-dot{width:7px;height:7px;background:var(--coral);border-radius:50%;position:absolute;top:0;right:0}
-/* COUPON DETAIL SHEET */
-.detail-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
-.detail-row:last-child{border-bottom:none}
-.detail-key{font-size:13px;color:var(--text2)}
-.detail-val{font-size:14px;font-weight:600}
+.tgl-group{display:flex;background:var(--bg3);border-radius:10px;padding:3px;gap:3px;margin:0 18px 14px}
+.tgl-opt{flex:1;padding:7px;border-radius:7px;border:none;background:none;color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--ff);transition:.15s;text-align:center}
+.tgl-opt.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+
+/* UPCOMING TIMELINE */
+.tl-wrap{padding:0 18px}
+.tl-group{margin-bottom:22px}
+.tl-month{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.07em;padding:4px 0 10px;display:flex;align-items:center;gap:8px;text-transform:uppercase}
+.tl-month::after{content:'';flex:1;height:1px;background:var(--bd)}
+.tl-item{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.tl-item.tl-soon{border-color:rgba(109,95,253,.35);background:rgba(109,95,253,.05)}
+.tl-ic{font-size:17px;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--bg3);flex-shrink:0}
+.tl-info{flex:1;min-width:0}
+.tl-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-card{font-size:11px;color:var(--t2);margin-top:1px}
+.tl-right{text-align:right;flex-shrink:0}
+.tl-cycle-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-bottom:3px}
+.cy-q{background:rgba(14,203,129,.12);color:#34D399}
+.cy-h{background:rgba(240,180,41,.12);color:#FCD34D}
+.cy-y{background:rgba(109,95,253,.12);color:var(--vl)}
+.cy-m{background:rgba(59,158,255,.12);color:#93C5FD}
+.tl-days{font-size:10px;color:var(--t3);margin-top:2px}
+.tl-days.soon{color:var(--vl);font-weight:700}
+.tl-paused-row{background:rgba(240,82,82,.05);border:1px solid rgba(240,82,82,.15);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.tl-ended-row{opacity:.45;border:1px dashed var(--bd);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+
+/* OVERLAY / SHEET */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;max-width:430px;margin:0 auto}
+.overlay.open{opacity:1;pointer-events:all}
+.sheet{background:var(--bg2);border-radius:22px 22px 0 0;width:100%;max-height:93vh;overflow-y:auto;padding-bottom:32px;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1)}
+.overlay.open .sheet{transform:translateY(0)}
+.sheet::-webkit-scrollbar{display:none}
+.sheet-handle{width:32px;height:3px;background:var(--bd);border-radius:3px;margin:10px auto 0}
+.sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 14px}
+.sheet-title{font-size:18px;font-weight:800;letter-spacing:-.3px}
+.sheet-close{width:30px;height:30px;border-radius:50%;background:var(--bg3);border:none;color:var(--t2);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sbody{padding:0 18px}
+
+/* FORMS */
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.05em;margin-bottom:5px;text-transform:uppercase}
+.finput{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;color:var(--text);font-size:14px;font-family:var(--ff);outline:none;transition:.15s;-webkit-appearance:none;color-scheme:dark}
+.finput:focus{border-color:var(--v)}
+.finput::placeholder{color:var(--t3)}
+.fselect{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;color:var(--text);font-size:14px;font-family:var(--ff);outline:none;cursor:pointer;-webkit-appearance:none;color-scheme:dark}
+.fselect:focus{border-color:var(--v)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fhint{font-size:11px;color:var(--t3);margin-top:4px;line-height:1.4}
+
+/* IMAGE UPLOAD */
+.img-up{width:100%;height:130px;border:2px dashed var(--bd);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--t3);position:relative;overflow:hidden;transition:.2s}
+.img-up:hover{border-color:var(--v);color:var(--vl)}
+.img-up input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-up img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px}
+.img-up .iup-lbl{position:relative;z-index:1;font-size:12px;font-weight:600;pointer-events:none}
+.img-up .iup-ic{font-size:24px;pointer-events:none}
+.img-rm{position:absolute;top:7px;right:7px;z-index:2;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.65);border:none;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* COLOR PRESETS */
+.cpresets{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
+.cpreset{width:36px;height:36px;border-radius:9px;cursor:pointer;border:2px solid transparent;transition:.15s;position:relative;flex-shrink:0}
+.cpreset.sel::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800}
+
+/* CATEGORY GRID */
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:4px}
+.cat-opt{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 3px;border-radius:10px;border:1px solid var(--bd);background:var(--bg3);cursor:pointer;transition:.15s}
+.cat-opt:hover{background:var(--bg4)}
+.cat-opt.sel{background:rgba(109,95,253,.15);border-color:var(--v)}
+.cat-opt .cem{font-size:20px;line-height:1}
+.cat-opt .cnm{font-size:9px;color:var(--t2);font-weight:600;text-align:center;line-height:1.2}
+
+/* BUTTONS */
+.btn{width:100%;padding:13px;border-radius:12px;border:none;font-size:15px;font-weight:700;font-family:var(--ff);cursor:pointer;transition:.15s;letter-spacing:-.1px}
+.btn-p{background:linear-gradient(135deg,var(--vd),var(--vl));color:#fff}
+.btn-p:hover{opacity:.9}
+.btn-p:active{transform:scale(.99)}
+.btn-s{background:var(--bg3);color:var(--t2);border:1px solid var(--bd)}
+.btn-s:hover{color:var(--text);background:var(--bg4)}
+.btn-d{background:rgba(240,82,82,.1);color:var(--co);border:1px solid rgba(240,82,82,.25)}
+.btn-w{background:rgba(240,180,41,.1);color:var(--am);border:1px solid rgba(240,180,41,.25)}
+.btn-gap{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.btn-row{display:flex;gap:9px}
+.btn-row .btn{font-size:14px;padding:11px}
+
+/* DETAIL ROWS */
+.drow{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--bd)}
+.drow:last-child{border-bottom:none}
+.dkey{font-size:12px;color:var(--t2)}
+.dval{font-size:13px;font-weight:700;text-align:right;max-width:60%}
+
 /* DEADLINE BAR */
-.deadline-bar{background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:16px}
-.deadline-label{font-size:12px;color:var(--text2);margin-bottom:8px}
-.deadline-track{height:6px;background:var(--border);border-radius:6px;overflow:hidden}
-.deadline-fill{height:100%;border-radius:6px;transition:width .5s}
-.deadline-nums{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px}
-/* CARD DETAIL HEADER */
-.card-detail-mini{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg3);border-radius:14px;margin-bottom:16px}
-.card-detail-mini .mini-dot{width:12px;height:12px;border-radius:50%}
-/* SCROLLTOP BUTTON */
-.scroll-top{position:fixed;bottom:calc(var(--tab-h) + 16px);right:16px;width:40px;height:40px;border-radius:50%;background:var(--violet);color:#fff;border:none;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transform:translateY(8px);transition:all .2s;z-index:30;max-width:430px}
-.scroll-top.show{opacity:1;transform:translateY(0)}
-/* Animations */
-@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.animate-in{animation:slideUp .25s ease forwards}
-/* RESPONSIVE */
-@media(min-width:430px){#app{border-left:1px solid var(--border);border-right:1px solid var(--border)}}
+.dl-bar{background:var(--bg3);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.dl-label{font-size:11px;color:var(--t2);margin-bottom:7px;font-weight:600}
+.dl-track{height:5px;background:var(--bd);border-radius:5px;overflow:hidden}
+.dl-fill{height:100%;border-radius:5px;transition:width .5s}
+.dl-nums{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:5px}
+
+/* HISTORY LIST */
+.hist-item{background:var(--bg3);border-radius:9px;padding:10px 12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
+.hist-cycle{font-size:12px;font-weight:700}
+.hist-right{display:flex;align-items:center;gap:8px}
+.hist-date{font-size:11px;color:var(--t3)}
+
+/* LIFECYCLE CONTROL */
+.lc-ctrl{border-radius:12px;padding:14px;margin-bottom:14px;border:1px solid}
+.lc-active-ctrl{background:rgba(14,203,129,.05);border-color:rgba(14,203,129,.2)}
+.lc-paused-ctrl{background:rgba(240,82,82,.05);border-color:rgba(240,82,82,.2)}
+.lc-ended-ctrl{background:rgba(78,90,110,.05);border-color:var(--bd)}
+.lc-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.lc-sub{font-size:12px;color:var(--t2);margin-bottom:10px}
+.lc-btns{display:flex;gap:8px;flex-wrap:wrap}
+.lc-btn{padding:6px 14px;border-radius:8px;border:1px solid;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--ff);transition:.15s;background:transparent}
+.lc-btn-pause{border-color:rgba(240,180,41,.4);color:var(--am)}
+.lc-btn-pause:hover{background:rgba(240,180,41,.1)}
+.lc-btn-end{border-color:rgba(240,82,82,.4);color:var(--co)}
+.lc-btn-end:hover{background:rgba(240,82,82,.1)}
+.lc-btn-resume{border-color:rgba(14,203,129,.4);color:var(--em)}
+.lc-btn-resume:hover{background:rgba(14,203,129,.1)}
+
+/* MINI CARD HEADER */
+.mini-card-hdr{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--bg3);border-radius:12px;margin-bottom:14px}
+.mini-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* REDEEM FORM HERO */
+.rdm-hero{text-align:center;padding:18px 18px 16px}
+.rdm-em{font-size:46px;margin-bottom:6px}
+.rdm-title{font-size:18px;font-weight:800;margin-bottom:3px}
+.rdm-sub{font-size:13px;color:var(--t2)}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:52px 36px;text-align:center}
+.empty .ei{font-size:42px}
+.empty .et{font-size:17px;font-weight:700}
+.empty .es{font-size:13px;color:var(--t2);line-height:1.6}
+
+/* DIVIDER */
+.div{height:1px;background:var(--bd);margin:14px 0}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ani{animation:fadeUp .2s ease forwards}
+
+/* INFO BOX */
+.info-box{border-radius:10px;padding:11px 13px;margin-bottom:14px;font-size:12px;line-height:1.5}
+.info-am{background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.2);color:#FCD34D}
+.info-em{background:rgba(14,203,129,.08);border:1px solid rgba(14,203,129,.2);color:#34D399}
+.info-co{background:rgba(240,82,82,.08);border:1px solid rgba(240,82,82,.2);color:#FCA5A5}
+
+@media(min-width:430px){#app{border-left:1px solid var(--bd);border-right:1px solid var(--bd)}}
 </style>
 </head>
 <body>
 <div id="app">
-  <div id="view">
-    <!-- Content injected by JS -->
-  </div>
+  <div id="view"></div>
   <nav id="tabbar">
     <button class="tab active" data-tab="cards" onclick="switchTab('cards')">
-      <span class="tab-icon">💳</span>My Cards
+      <span class="tab-ic">💳</span>Cards
     </button>
     <button class="tab" data-tab="available" onclick="switchTab('available')">
-      <span class="tab-icon">🎁</span>Available
+      <span class="tab-ic">🎁</span>Available
     </button>
     <button class="tab" data-tab="redeemed" onclick="switchTab('redeemed')">
-      <span class="tab-icon">✅</span>Redeemed
+      <span class="tab-ic">✅</span>Redeemed
     </button>
     <button class="tab" data-tab="upcoming" onclick="switchTab('upcoming')">
-      <span class="tab-icon" style="position:relative">📅<span class="notif-dot"></span></span>Upcoming
+      <span class="tab-ic">📅</span><span class="notif" id="notif-dot" style="display:none"></span>Upcoming
     </button>
   </nav>
 </div>
 
-<!-- MODALS -->
-<div class="overlay" id="sheet-overlay" onclick="closeSheet(event)">
-  <div class="sheet" id="main-sheet">
-    <div class="sheet-handle"></div>
-    <div id="sheet-content"></div>
-  </div>
+<div class="overlay" id="ov" onclick="closeSheet(event)">
+  <div class="sheet" id="sh"><div class="sheet-handle"></div><div id="shc"></div></div>
 </div>
 
-<button class="scroll-top" id="scrollTopBtn" onclick="document.getElementById('view').scrollTop=0">↑</button>
-
 <script>
-// ── DATA ──────────────────────────────────────────────────────────────────
-const CARD_GRADIENTS=[
-  'linear-gradient(135deg,#1a1a2e,#16213e)',
-  'linear-gradient(135deg,#0d1b2a,#1b4332)',
-  'linear-gradient(135deg,#240046,#3c096c)',
-  'linear-gradient(135deg,#1c0a00,#3d1a00)',
-  'linear-gradient(135deg,#03045e,#023e8a)',
-  'linear-gradient(135deg,#2d2d2d,#1a1a1a)',
-  'linear-gradient(135deg,#1b2838,#2a475e)',
-  'linear-gradient(135deg,#3d0000,#200000)',
+// ── CONSTANTS ─────────────────────────────────────────────────────────────
+const CATS=[
+  {id:'spa',l:'Spa',e:'🧖'},{id:'golf',l:'Golf',e:'⛳'},
+  {id:'ott',l:'OTT',e:'🎬'},{id:'health',l:'Health',e:'🏥'},
+  {id:'gym',l:'Gym',e:'💪'},{id:'shopping',l:'Shopping',e:'🛍️'},
+  {id:'food',l:'Food',e:'🍽️'},{id:'music',l:'Music',e:'🎵'},
+  {id:'entertainment',l:'Fun',e:'🎭'},{id:'pharmacy',l:'Pharmacy',e:'💊'},
+  {id:'lounge',l:'Lounge',e:'✈️'},{id:'groceries',l:'Groceries',e:'🛒'},
+  {id:'cab',l:'Cab',e:'🚕'},{id:'more',l:'More',e:'⭐'},
 ];
-const CARD_COLORS=['#7C3AED','#10B981','#F59E0B','#F43F5E','#3B82F6','#6366F1','#EC4899','#14B8A6'];
-const CATEGORIES=[
-  {id:'spa',label:'Spa',em:'🧖'},
-  {id:'golf',label:'Golf',em:'⛳'},
-  {id:'ott',label:'OTT',em:'🎬'},
-  {id:'health',label:'Health',em:'🏥'},
-  {id:'gym',label:'Gym',em:'💪'},
-  {id:'shopping',label:'Shopping',em:'🛍️'},
-  {id:'food',label:'Food',em:'🍽️'},
-  {id:'music',label:'Music',em:'🎵'},
-  {id:'entertainment',label:'Fun',em:'🎭'},
-  {id:'pharmacy',label:'Pharmacy',em:'💊'},
-  {id:'lounge',label:'Lounge',em:'✈️'},
-  {id:'groceries',label:'Groceries',em:'🛒'},
-  {id:'cab',label:'Cab',em:'🚕'},
-  {id:'more',label:'More',em:'⭐'},
+const CARD_GRADS=[
+  {g:'linear-gradient(135deg,#1a0533,#3d0d6e)',c:'#7C3AED'},
+  {g:'linear-gradient(135deg,#0d1f1a,#0d3d2a)',c:'#0ECB81'},
+  {g:'linear-gradient(135deg,#1a1200,#3d2e00)',c:'#F0B429'},
+  {g:'linear-gradient(135deg,#1a0a00,#4a1a00)',c:'#F05252'},
+  {g:'linear-gradient(135deg,#001a3a,#003480)',c:'#3B9EFF'},
+  {g:'linear-gradient(135deg,#1a001a,#3d003d)',c:'#EC4899'},
+  {g:'linear-gradient(135deg,#001a2a,#003d55)',c:'#06B6D4'},
+  {g:'linear-gradient(135deg,#1a1a00,#3d3500)',c:'#84CC16'},
 ];
 const CYCLES=[{v:1,l:'Monthly'},{v:3,l:'Quarterly'},{v:6,l:'Half-yearly'},{v:12,l:'Yearly'}];
+const STATUS_LABELS={available:'Available',redeemed:'Redeemed',used:'Used',sold:'Sold',skipped:'Skipped'};
+const LC_LABELS={active:'Active',paused:'Paused',ended:'Ended'};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+const todayStr=()=>new Date().toISOString().split('T')[0];
+const cat=id=>CATS.find(x=>x.id===id)||{e:'⭐',l:id};
+const cycleL=v=>CYCLES.find(x=>x.v===v)?.l||v+'m';
+const fmtD=d=>{if(!d)return'—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})};
+const daysUntil=d=>{if(!d)return null;const n=new Date();n.setHours(0,0,0,0);const t=new Date(d+'T00:00:00');return Math.ceil((t-n)/(864e5))};
+const hexRgb=h=>{const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h||'#6D5FFD');return r?`${parseInt(r[1],16)},${parseInt(r[2],16)},${parseInt(r[3],16)}`:'109,95,253'};
+const uid=()=>Date.now()+Math.random().toString(36).slice(2,7);
+
+// ── CYCLE MATH (Jan 1 anchor) ─────────────────────────────────────────────
+function cycleStartFor(cycleMonths,refDate){
+  const d=new Date((refDate||todayStr())+'T00:00:00');
+  const yr=d.getFullYear();const m=d.getMonth();
+  if(cycleMonths===1)return`${yr}-${String(m+1).padStart(2,'0')}-01`;
+  if(cycleMonths===3){const q=Math.floor(m/3);return`${yr}-${String(q*3+1).padStart(2,'0')}-01`;}
+  if(cycleMonths===6){return m<6?`${yr}-01-01`:`${yr}-07-01`;}
+  return`${yr}-01-01`;
+}
+function cycleEndFor(cycleMonths,cycleStart){
+  const d=new Date(cycleStart+'T00:00:00');
+  d.setMonth(d.getMonth()+cycleMonths);
+  return d.toISOString().split('T')[0];
+}
+function currentCycleLabel(cycleMonths,cycleStart){
+  const d=new Date(cycleStart+'T00:00:00');
+  const yr=d.getFullYear();const m=d.getMonth();
+  if(cycleMonths===1)return`${d.toLocaleString('default',{month:'short'})} ${yr}`;
+  if(cycleMonths===3){const q=Math.floor(m/3)+1;return`Q${q} ${yr}`;}
+  if(cycleMonths===6){return m===0?`H1 ${yr}`:`H2 ${yr}`;}
+  return`${yr}`;
+}
+function nextCycleStart(cycleMonths,currentEnd){
+  return currentEnd;
+}
+function ensureCurrentInstance(offer){
+  const cs=cycleStartFor(offer.cycle);
+  const ce=cycleEndFor(offer.cycle,cs);
+  const lbl=currentCycleLabel(offer.cycle,cs);
+  const existing=offer.instances.find(i=>i.cycleStart===cs);
+  if(!existing&&offer.lifecycle==='active'){
+    offer.instances.push({id:uid(),offerId:offer.id,cycleStart:cs,cycleEnd:ce,cycleLabel:lbl,status:'available',redeemDate:null,useByDate:null,notes:''});
+  }
+  return offer.instances.find(i=>i.cycleStart===cs)||null;
+}
+function getCurrentInstance(offer){
+  const cs=cycleStartFor(offer.cycle);
+  return offer.instances.find(i=>i.cycleStart===cs)||null;
+}
+function getNextResetDate(offer){
+  const cs=cycleStartFor(offer.cycle);
+  return cycleEndFor(offer.cycle,cs);
+}
 
 // ── STATE ─────────────────────────────────────────────────────────────────
-let state={
-  tab:'cards',
-  cards:[
-    {id:1,bank:'Bank of Maharashtra',type:'Credit',last4:'4521',first6:'472381',color:'#7C3AED',gradient:'linear-gradient(135deg,#240046,#3c096c)',image:null,
-     coupons:[
-       {id:1,name:'Spa Session',cat:'spa',cycle:3,tradeable:false,status:'available',redeemDate:null,useByDate:null,nextReset:'2025-04-01',notes:''},
-       {id:2,name:'Golf Round',cat:'golf',cycle:3,tradeable:true,status:'redeemed',redeemDate:'2025-01-15',useByDate:'2025-02-15',nextReset:null,notes:''},
-       {id:3,name:'Prime / Sony / Zee',cat:'ott',cycle:12,tradeable:false,status:'available',redeemDate:null,useByDate:null,nextReset:'2026-01-01',notes:''},
-       {id:4,name:'Health Checkup',cat:'health',cycle:3,tradeable:false,status:'used',redeemDate:'2025-01-10',useByDate:'2025-02-10',nextReset:null,notes:''},
-       {id:5,name:'Gym Membership',cat:'gym',cycle:3,tradeable:false,status:'available',redeemDate:null,useByDate:null,nextReset:'2025-04-01',notes:''},
-       {id:6,name:'Cab Credits',cat:'cab',cycle:3,tradeable:true,status:'available',redeemDate:null,useByDate:null,nextReset:'2025-04-01',notes:''},
-     ]
-    },
-    {id:2,bank:'HDFC Bank',type:'Debit',last4:'8832',first6:'601200',color:'#F59E0B',gradient:'linear-gradient(135deg,#1c0a00,#3d1a00)',image:null,
-     coupons:[
-       {id:7,name:'Lounge Access',cat:'lounge',cycle:3,tradeable:false,status:'available',redeemDate:null,useByDate:null,nextReset:'2025-04-01',notes:''},
-       {id:8,name:'Food Voucher',cat:'food',cycle:1,tradeable:true,status:'sold',redeemDate:'2025-01-05',useByDate:'2025-02-05',nextReset:null,notes:''},
-       {id:9,name:'Shopping Offer',cat:'shopping',cycle:6,tradeable:true,status:'available',redeemDate:null,useByDate:null,nextReset:'2025-07-01',notes:''},
-     ]
-    }
-  ],
-  filterCat:'all',
-  filterStatus:'all',
-};
+let S={tab:'cards',cards:[],offers:[],_selCat:null,_tradeable:true,_newCardImg:null,_newCardGrad:0,_lcNote:''};
 
-function saveState(){try{localStorage.setItem('vc_state',JSON.stringify(state))}catch(e){}}
-function loadState(){try{const s=localStorage.getItem('vc_state');if(s)state=JSON.parse(s)}catch(e){}}
-loadState();
+function save(){try{const d={cards:S.cards,offers:S.offers};localStorage.setItem('vc2',JSON.stringify(d))}catch(e){}}
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem('vc2')||'null');
+    if(d&&d.cards){S.cards=d.cards;S.offers=d.offers||[];}
+    else seedData();
+  }catch(e){seedData();}
+  S.offers.forEach(o=>ensureCurrentInstance(o));
+}
+function seedData(){
+  const c1id='c1',c2id='c2';
+  S.cards=[
+    {id:c1id,bank:'Bank of Maharashtra',type:'Credit',last4:'4521',first6:'472381',grad:0,image:null},
+    {id:c2id,bank:'HDFC Bank',type:'Debit',last4:'8832',first6:'601200',grad:4,image:null},
+  ];
+  S.offers=[
+    {id:'o1',cardId:c1id,name:'Spa Session',cat:'spa',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o2',cardId:c1id,name:'Golf Round',cat:'golf',cycle:3,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o3',cardId:c1id,name:'OTT Subscription',cat:'ott',cycle:12,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o4',cardId:c1id,name:'Health Checkup',cat:'health',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o5',cardId:c1id,name:'Gym Membership',cat:'gym',cycle:3,tradeable:false,lifecycle:'paused',lcNote:'Bank paused from Q2 2025',instances:[]},
+    {id:'o6',cardId:c1id,name:'Cab Credits',cat:'cab',cycle:3,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o7',cardId:c2id,name:'Lounge Access',cat:'lounge',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o8',cardId:c2id,name:'Food Voucher',cat:'food',cycle:1,tradeable:true,lifecycle:'ended',lcNote:'Discontinued from Apr 2025',instances:[]},
+    {id:'o9',cardId:c2id,name:'Shopping Offer',cat:'shopping',cycle:6,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
+  ];
+  S.offers.forEach(o=>ensureCurrentInstance(o));
+  // Simulate one redeemed instance for Golf
+  const golf=S.offers.find(o=>o.id==='o2');
+  const ginst=getCurrentInstance(golf);
+  if(ginst){ginst.status='redeemed';ginst.redeemDate=todayStr();const u=new Date();u.setDate(u.getDate()+30);ginst.useByDate=u.toISOString().split('T')[0];}
+  save();
+}
+load();
 
-function today(){const d=new Date();return d.toISOString().split('T')[0]}
-function fmtDate(d){if(!d)return'—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
-function daysUntil(d){if(!d)return null;const now=new Date();now.setHours(0,0,0,0);const t=new Date(d+'T00:00:00');return Math.ceil((t-now)/(1000*60*60*24))}
-function cycleLabel(c){return CYCLES.find(x=>x.v===c)?.l||c+'m'}
-function catInfo(id){return CATEGORIES.find(x=>x.id===id)||{em:'⭐',label:id}}
-function allCoupons(){return state.cards.flatMap(c=>c.coupons.map(cp=>({...cp,cardId:c.id,cardBank:c.bank,cardColor:c.color})))}
-
-// ── RENDER ENGINE ─────────────────────────────────────────────────────────
+// ── RENDER ROOT ────────────────────────────────────────────────────────────
 function render(){
   const v=document.getElementById('view');
-  v.innerHTML='';
-  if(state.tab==='cards') renderCards(v);
-  else if(state.tab==='available') renderAvailable(v);
-  else if(state.tab==='redeemed') renderRedeemed(v);
-  else if(state.tab==='upcoming') renderUpcoming(v);
+  if(S.tab==='cards') v.innerHTML=renderCards();
+  else if(S.tab==='available') v.innerHTML=renderAvailable();
+  else if(S.tab==='redeemed') v.innerHTML=renderRedeemed();
+  else if(S.tab==='upcoming') v.innerHTML=renderUpcoming();
+  updateNotifDot();
 }
 
-// CARDS TAB
-function renderCards(v){
-  v.innerHTML=`
-  <div class="topbar"><h1>Vault<span>Card</span></h1>
-    <div class="topbar-actions"><button class="icon-btn" onclick="openAddCard()" title="Add card">+</button></div>
-  </div>
-  <div class="section-label">My Cards</div>
-  <div class="cards-scroll">${state.cards.map(cardHTML).join('')}
-    <div class="add-card-btn" onclick="openAddCard()">
-      <div class="plus">＋</div><div style="font-size:13px;font-weight:500">Add New Card</div>
-    </div>
-  </div>
-  <div class="section-label">All Offers</div>
-  <div class="cat-scroll">
-    <div class="cat-pill active" onclick="filterCat('all')">🗂️ All</div>
-    ${CATEGORIES.map(c=>`<div class="cat-pill" onclick="filterCat('${c.id}')">${c.em} ${c.label}</div>`).join('')}
-  </div>
-  <div class="coupon-list" id="all-coupon-list">
-    ${renderCouponItems(allCoupons(),'all')}
-  </div>
-  <div style="height:20px"></div>`;
+function updateNotifDot(){
+  const dot=document.getElementById('notif-dot');
+  const hasSoon=S.offers.filter(o=>o.lifecycle==='active').some(o=>{
+    const inst=getCurrentInstance(o);
+    if(inst&&inst.status!=='available')return false;
+    const days=daysUntil(getNextResetDate(o));
+    return days!==null&&days<=7&&days>0;
+  });
+  dot.style.display=hasSoon?'block':'none';
 }
 
-function cardHTML(c){
-  const avail=c.coupons.filter(x=>x.status==='available').length;
-  const total=c.coupons.length;
-  const bg=c.image?`url(${c.image})`:(c.gradient||CARD_GRADIENTS[0]);
-  const hasImg=!!c.image;
-  return `<div class="bank-card" style="background:${hasImg?c.gradient||CARD_GRADIENTS[0]:bg}" onclick="openCardDetail(${c.id})">
-    ${hasImg?`<img class="card-img" src="${c.image}" alt="card"><div class="card-overlay"></div>`:''}
-    <div class="card-content">
-      <div>
-        <div class="card-bank">${c.bank}</div>
-        <div class="card-type-badge">${c.type==='Credit'?'💳':'🏦'} ${c.type}</div>
-      </div>
-      <div>
-        <div class="card-digits">●●●● ●●●● ●●●● ${c.last4}</div>
-        <div class="card-meta" style="margin-top:10px">
-          <div>
-            <div class="card-label-s">Card ID</div>
-            <div class="card-val-s">${c.first6}••••${c.last4}</div>
+// ── CARDS TAB ──────────────────────────────────────────────────────────────
+function renderCards(){
+  const cardHTMLs=S.cards.map(c=>{
+    const cardOffers=S.offers.filter(o=>o.cardId===c.id);
+    const avail=cardOffers.filter(o=>{
+      if(o.lifecycle!=='active')return false;
+      const inst=getCurrentInstance(o);
+      return inst&&inst.status==='available';
+    }).length;
+    const total=cardOffers.filter(o=>o.lifecycle!=='ended').length;
+    const gr=CARD_GRADS[c.grad||0];
+    const hasImg=!!c.image;
+    return`<div class="bcard" style="background:${gr.g}" onclick="openCardDetail('${c.id}')">
+      ${hasImg?`<img class="bcard-img" src="${c.image}" alt=""><div class="bcard-overlay" style="background:linear-gradient(135deg,rgba(0,0,0,.5),rgba(0,0,0,.2))"></div>`:''}
+      <div class="bcard-content">
+        <div>
+          <div class="bcard-bank">${c.bank}</div>
+          <div class="bcard-type">${c.type==='Credit'?'💳':'🏦'} ${c.type}</div>
+        </div>
+        <div>
+          <div class="bcard-digits">●●●● ●●●● ●●●● ${c.last4}</div>
+          <div class="bcard-bottom" style="margin-top:9px">
+            <div><div class="bcard-id">Card ref<span>${c.first6}••••${c.last4}</span></div></div>
+            <div class="bcard-badge">${avail}/${total} active</div>
           </div>
-          <div class="card-offers-count">${avail}/${total} offers</div>
         </div>
       </div>
+    </div>`;
+  }).join('');
+
+  const allOffers=S.offers.map(o=>{
+    const c=S.cards.find(x=>x.id===o.cardId);
+    return renderOfferItem(o,c,'all');
+  }).join('');
+
+  return`<div class="topbar"><div class="tbar-title">Vault<em>Card</em></div>
+    <div class="tbar-actions"><button class="ibtn" onclick="openAddCard()">＋</button></div></div>
+    <div class="slabel">My Cards</div>
+    <div class="card-scroll">${cardHTMLs}<div class="add-bcard" onclick="openAddCard()"><div class="add-bcard-plus">＋</div><div style="font-size:12px;font-weight:600">Add Card</div></div></div>
+    <div class="slabel">All Offers</div>
+    <div class="cat-scroll" id="all-cats">
+      <div class="cpill active" data-c="all" onclick="filterAllCat('all')">🗂 All</div>
+      ${CATS.map(c=>`<div class="cpill" data-c="${c.id}" onclick="filterAllCat('${c.id}')">${c.e} ${c.l}</div>`).join('')}
+    </div>
+    <div class="offer-list ani" id="all-offer-list">${allOffers||emptyHTML('🗂️','No offers yet','Add offers after creating a card.')}</div>
+    <div style="height:16px"></div>`;
+}
+
+// ── OFFER ITEM HTML ───────────────────────────────────────────────────────
+function renderOfferItem(o,card,mode){
+  const ci=cat(o.cat);
+  const gr=CARD_GRADS[card?.grad||0];
+  const inst=getCurrentInstance(o);
+
+  if(o.lifecycle==='ended'){
+    return`<div class="offer-item s-skipped" onclick="openOfferDetail('${o.id}')">
+      <div class="offer-ic" style="background:rgba(78,90,110,.12)">${ci.e}</div>
+      <div class="offer-info">
+        <div class="offer-name" style="opacity:.5">${o.name}</div>
+        <div class="offer-sub">${mode!=='card'?(card?.bank||'')+'  · ':''} ${cycleL(o.cycle)}</div>
+        <div class="offer-ended-banner">🔴 Discontinued${o.lcNote?' — '+o.lcNote:''}</div>
+      </div>
+      <div class="offer-right"><span class="chip chip-ended">Ended</span></div>
+    </div>`;
+  }
+
+  if(o.lifecycle==='paused'){
+    return`<div class="offer-item s-skipped" onclick="openOfferDetail('${o.id}')">
+      <div class="offer-ic" style="background:rgba(109,95,253,.12)">${ci.e}</div>
+      <div class="offer-info">
+        <div class="offer-name">${o.name}</div>
+        <div class="offer-sub">${mode!=='card'?(card?.bank||'')+'  · ':''} ${cycleL(o.cycle)}</div>
+        <div class="offer-paused-banner">⏸ Paused by bank${o.lcNote?' — '+o.lcNote:''}</div>
+      </div>
+      <div class="offer-right"><span class="chip chip-paused">Paused</span></div>
+    </div>`;
+  }
+
+  if(!inst)return'';
+  const urgent=inst.status==='redeemed'&&daysUntil(inst.useByDate)!==null&&daysUntil(inst.useByDate)<=7;
+  const nextReset=getNextResetDate(o);
+  const daysToReset=daysUntil(nextReset);
+
+  return`<div class="offer-item s-${inst.status} ani" onclick="openOfferDetail('${o.id}')">
+    <div class="offer-ic" style="background:rgba(${hexRgb(gr.c)},.12)">${ci.e}</div>
+    <div class="offer-info">
+      <div class="offer-name">${o.name}</div>
+      <div class="offer-sub">
+        ${mode!=='card'?`<span style="color:var(--t3)">${card?.bank||''}</span> ·`:''} 
+        ${cycleL(o.cycle)} · ${currentCycleLabel(o.cycle,cycleStartFor(o.cycle))}
+        ${o.tradeable?' · <span style="color:var(--em);font-size:10px">Tradeable</span>':''}
+      </div>
+      ${urgent?`<div class="offer-urgent">⚠ Use by ${fmtD(inst.useByDate)}</div>`:''}
+    </div>
+    <div class="offer-right">
+      <span class="chip chip-${inst.status}">${STATUS_LABELS[inst.status]}</span>
+      <span class="offer-date">${instDateHint(inst,nextReset,daysToReset)}</span>
     </div>
   </div>`;
 }
 
-function renderCouponItems(coupons,mode){
-  if(!coupons.length)return`<div class="empty-state"><div class="empty-icon">🎁</div><div class="empty-title">No coupons here</div><div class="empty-sub">Coupons you add to your cards will appear here.</div></div>`;
-  return coupons.map(cp=>{
-    const ci=catInfo(cp.cat);
-    const urgent=cp.status==='redeemed'&&daysUntil(cp.useByDate)!==null&&daysUntil(cp.useByDate)<=7;
-    return`<div class="coupon-item status-${cp.status} animate-in" onclick="openCouponDetail(${cp.id},${cp.cardId})">
-      <div class="coupon-icon" style="background:rgba(${hexToRgb(CARD_COLORS[0])},0.15)">${ci.em}</div>
-      <div class="coupon-info">
-        <div class="coupon-name">${cp.name}</div>
-        <div class="coupon-sub">${mode==='card'?cycleLabel(cp.cycle):cp.cardBank+' · '+cycleLabel(cp.cycle)}${cp.tradeable?' · <span style="color:var(--emerald)">Tradeable</span>':''}</div>
-        ${urgent?`<div class="coupon-urgent">⚠ Use by ${fmtDate(cp.useByDate)}</div>`:''}
-      </div>
-      <div class="coupon-right">
-        <span class="status-chip chip-${cp.status}">${statusLabel(cp.status)}</span>
-        <span class="coupon-date">${statusDate(cp)}</span>
-      </div>
-    </div>`}).join('');
-}
-
-function statusLabel(s){return{available:'Available',redeemed:'Redeemed',used:'Used',sold:'Sold'}[s]||s}
-function statusDate(cp){
-  if(cp.status==='available')return cp.nextReset?`Resets ${fmtDate(cp.nextReset)}`:'';
-  if(cp.status==='redeemed')return cp.useByDate?`Use by ${fmtDate(cp.useByDate)}`:'';
-  if(cp.status==='used')return cp.redeemDate?`Used ${fmtDate(cp.redeemDate)}`:'';
-  if(cp.status==='sold')return cp.redeemDate?`Sold ${fmtDate(cp.redeemDate)}`:'';
+function instDateHint(inst,nextReset,daysToReset){
+  if(inst.status==='available') return daysToReset!==null&&daysToReset<=14?`Resets in ${daysToReset}d`:'';
+  if(inst.status==='redeemed') return inst.useByDate?`Use by ${fmtD(inst.useByDate)}`:'';
+  if(inst.status==='used'||inst.status==='sold') return nextReset?`Next ${fmtD(nextReset)}`:'';
   return'';
 }
-function hexToRgb(h){const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h||'#7C3AED');return r?`${parseInt(r[1],16)},${parseInt(r[2],16)},${parseInt(r[3],16)}`:'124,58,237'}
 
-// AVAILABLE TAB
-function renderAvailable(v){
-  const coupons=allCoupons().filter(x=>x.status==='available');
-  v.innerHTML=`
-  <div class="topbar"><h1>Available <span>Offers</span></h1></div>
-  <div class="cat-scroll" id="avail-cats">
-    <div class="cat-pill active" data-cat="all" onclick="setAvailCat('all')">🗂️ All</div>
-    ${[...new Set(coupons.map(c=>c.cat))].map(id=>{const ci=catInfo(id);return`<div class="cat-pill" data-cat="${id}" onclick="setAvailCat('${id}')">${ci.em} ${ci.label}</div>`}).join('')}
-  </div>
-  <div class="coupon-list" id="avail-list">${renderCouponItems(coupons,'avail')}</div>
-  <div style="height:20px"></div>`;
-  window._availCat='all';
-}
-function setAvailCat(cat){
-  window._availCat=cat;
-  document.querySelectorAll('#avail-cats .cat-pill').forEach(p=>{p.classList.toggle('active',p.dataset.cat===cat)});
-  const coupons=allCoupons().filter(x=>x.status==='available'&&(cat==='all'||x.cat===cat));
-  document.getElementById('avail-list').innerHTML=renderCouponItems(coupons,'avail');
-}
+// ── AVAILABLE TAB ──────────────────────────────────────────────────────────
+function renderAvailable(){
+  const active=S.offers.filter(o=>o.lifecycle==='active').map(o=>{
+    const inst=getCurrentInstance(o);
+    return inst&&inst.status==='available'?{o,inst}:null;
+  }).filter(Boolean);
 
-// REDEEMED TAB
-function renderRedeemed(v){
-  const all=allCoupons().filter(x=>x.status!=='available');
-  v.innerHTML=`
-  <div class="topbar"><h1>Redeemed <span>Offers</span></h1></div>
-  <div style="padding:0 20px 12px">
-    <div class="toggle-group">
-      <button class="toggle-opt active" data-sf="all" onclick="setRedFilter('all')">All</button>
-      <button class="toggle-opt" data-sf="redeemed" onclick="setRedFilter('redeemed')">Redeemed</button>
-      <button class="toggle-opt" data-sf="used" onclick="setRedFilter('used')">Used</button>
-      <button class="toggle-opt" data-sf="sold" onclick="setRedFilter('sold')">Sold</button>
+  const cats=[...new Set(active.map(x=>x.o.cat))];
+  return`<div class="topbar"><div class="tbar-title">Available <em>Offers</em></div></div>
+    <div class="cat-scroll" id="av-cats">
+      <div class="cpill active" data-c="all" onclick="filterAvailCat('all')">🗂 All</div>
+      ${cats.map(id=>{const c=cat(id);return`<div class="cpill" data-c="${id}" onclick="filterAvailCat('${id}')">${c.e} ${c.l}</div>`}).join('')}
     </div>
-  </div>
-  <div class="coupon-list" id="red-list">${renderCouponItems(all,'red')}</div>
-  <div style="height:20px"></div>`;
-}
-function setRedFilter(sf){
-  document.querySelectorAll('.toggle-opt').forEach(b=>b.classList.toggle('active',b.dataset.sf===sf));
-  const all=allCoupons().filter(x=>x.status!=='available'&&(sf==='all'||x.status===sf));
-  document.getElementById('red-list').innerHTML=renderCouponItems(all,'red');
+    <div class="offer-list ani" id="av-list">
+      ${active.map(({o})=>renderOfferItem(o,S.cards.find(c=>c.id===o.cardId),'avail')).join('')||emptyHTML('🎁','All clear!','No available offers right now. Check Upcoming to see when the next ones reset.')}
+    </div><div style="height:16px"></div>`;
 }
 
-// UPCOMING TAB
-function renderUpcoming(v){
+// ── REDEEMED TAB ───────────────────────────────────────────────────────────
+function renderRedeemed(){
+  const nonAvail=S.offers.flatMap(o=>{
+    const card=S.cards.find(c=>c.id===o.cardId);
+    return o.instances.filter(i=>i.status!=='available').map(i=>({o,i,card}));
+  }).sort((a,b)=>new Date(b.i.redeemDate||0)-new Date(a.i.redeemDate||0));
+
+  return`<div class="topbar"><div class="tbar-title">Redeemed <em>History</em></div></div>
+    <div class="tgl-group">
+      <button class="tgl-opt active" data-sf="all" onclick="setRedFilter('all')">All</button>
+      <button class="tgl-opt" data-sf="redeemed" onclick="setRedFilter('redeemed')">Redeemed</button>
+      <button class="tgl-opt" data-sf="used" onclick="setRedFilter('used')">Used</button>
+      <button class="tgl-opt" data-sf="sold" onclick="setRedFilter('sold')">Sold</button>
+    </div>
+    <div class="offer-list ani" id="red-list">
+      ${renderRedeemedItems(nonAvail,'all')}
+    </div><div style="height:16px"></div>`;
+}
+
+function renderRedeemedItems(items,sf){
+  const filtered=sf==='all'?items:items.filter(x=>x.i.status===sf);
+  if(!filtered.length)return emptyHTML('📋','Nothing here','Offers you redeem will appear in this history.');
+  return filtered.map(({o,i,card})=>{
+    const ci=cat(o.cat);
+    const urgent=i.status==='redeemed'&&daysUntil(i.useByDate)!==null&&daysUntil(i.useByDate)<=7;
+    const nextReset=getNextResetDate(o);
+    return`<div class="offer-item s-${i.status} ani" onclick="openOfferDetail('${o.id}')">
+      <div class="offer-ic" style="background:rgba(109,95,253,.1)">${ci.e}</div>
+      <div class="offer-info">
+        <div class="offer-name">${o.name}</div>
+        <div class="offer-sub"><span style="color:var(--t3)">${card?.bank||''}</span> · ${i.cycleLabel} · ${cycleL(o.cycle)}</div>
+        ${urgent?`<div class="offer-urgent">⚠ Use by ${fmtD(i.useByDate)}</div>`:''}
+      </div>
+      <div class="offer-right">
+        <span class="chip chip-${i.status}">${STATUS_LABELS[i.status]}</span>
+        <span class="offer-date">${i.redeemDate?fmtD(i.redeemDate):''}</span>
+        ${(i.status==='used'||i.status==='sold')&&nextReset?`<span class="offer-date" style="color:var(--em)">Next ${fmtD(nextReset)}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── UPCOMING TAB ────────────────────────────────────────────────────────────
+function renderUpcoming(){
   const now=new Date();now.setHours(0,0,0,0);
-  const upcoming=allCoupons()
-    .filter(x=>x.status==='available'&&x.nextReset)
-    .sort((a,b)=>new Date(a.nextReset)-new Date(b.nextReset));
-  const months={};
-  upcoming.forEach(cp=>{
-    const d=new Date(cp.nextReset+'T00:00:00');
-    const key=d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
-    if(!months[key])months[key]=[];
-    months[key].push(cp);
+
+  // Active offers: show next reset regardless of current instance status
+  const activeItems=S.offers.filter(o=>o.lifecycle==='active').map(o=>{
+    const card=S.cards.find(c=>c.id===o.cardId);
+    const inst=getCurrentInstance(o);
+    const nextReset=getNextResetDate(o);
+    const days=daysUntil(nextReset);
+    return{o,card,inst,nextReset,days};
+  }).sort((a,b)=>new Date(a.nextReset)-new Date(b.nextReset));
+
+  const pausedOffers=S.offers.filter(o=>o.lifecycle==='paused');
+  const endedOffers=S.offers.filter(o=>o.lifecycle==='ended');
+
+  // Group active by month
+  const byMonth={};
+  activeItems.forEach(item=>{
+    const d=new Date(item.nextReset+'T00:00:00');
+    const key=d.toLocaleString('en-IN',{month:'long',year:'numeric'});
+    if(!byMonth[key])byMonth[key]=[];
+    byMonth[key].push(item);
   });
-  v.innerHTML=`
-  <div class="topbar"><h1>Upcoming <span>Resets</span></h1></div>
-  <div class="section-label">Coupon reset schedule</div>
-  <div class="timeline">
-    ${Object.entries(months).map(([month,cps])=>`
-      <div class="timeline-group">
-        <div class="timeline-date">${month}</div>
-        ${cps.map(cp=>{
-          const ci=catInfo(cp.cat);
-          const days=daysUntil(cp.nextReset);
-          const badge=cp.cycle===3?'badge-q':cp.cycle===6?'badge-h':'badge-y';
-          const badgeL=cp.cycle===3?'Quarterly':cp.cycle===6?'Half-yearly':cp.cycle===12?'Yearly':'Monthly';
-          return`<div class="timeline-item">
-            <div class="tl-icon" style="background:rgba(255,255,255,0.06)">${ci.em}</div>
-            <div class="tl-info">
-              <div class="tl-name">${cp.name}</div>
-              <div class="tl-card">${cp.cardBank}</div>
-            </div>
-            <div style="text-align:right">
-              <div class="tl-badge ${badge}">${badgeL}</div>
-              <div style="font-size:11px;color:var(--text3);margin-top:4px">${days<=0?'Today!':days===1?'Tomorrow':'In '+days+' days'}</div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>`).join('')}
-    ${!upcoming.length?`<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">All caught up</div><div class="empty-sub">No upcoming resets. Add offers to your cards to track them here.</div></div>`:''}
-  </div>
-  <div style="height:20px"></div>`;
-}
 
-// ── SHEETS ────────────────────────────────────────────────────────────────
-function openSheet(html){
-  document.getElementById('sheet-content').innerHTML=html;
-  document.getElementById('sheet-overlay').classList.add('open');
-}
-function closeSheet(e){
-  if(!e||e.target===document.getElementById('sheet-overlay'))
-    document.getElementById('sheet-overlay').classList.remove('open');
-}
+  const cycleBadge=v=>v===3?'cy-q':v===6?'cy-h':v===12?'cy-y':'cy-m';
+  const cycleShort=v=>v===3?'Quarterly':v===6?'Half-yearly':v===12?'Yearly':'Monthly';
 
-// CARD DETAIL
-function openCardDetail(cardId){
-  const c=state.cards.find(x=>x.id===cardId);if(!c)return;
-  const avail=c.coupons.filter(x=>x.status==='available').length;
-  openSheet(`
-    <div class="sheet-header">
-      <div class="sheet-title">${c.bank}</div>
-      <button class="sheet-close" onclick="closeSheet()">✕</button>
+  const activeHTML=Object.entries(byMonth).map(([month,items])=>`
+    <div class="tl-group">
+      <div class="tl-month">${month}</div>
+      ${items.map(({o,card,inst,nextReset,days})=>{
+        const ci=cat(o.cat);
+        const instStatus=inst?inst.status:'available';
+        const isSoon=days!==null&&days<=7&&days>=0;
+        return`<div class="tl-item${isSoon?' tl-soon':''}">
+          <div class="tl-ic">${ci.e}</div>
+          <div class="tl-info">
+            <div class="tl-name">${o.name}</div>
+            <div class="tl-card">${card?.bank||''}</div>
+            <div style="margin-top:3px"><span class="chip chip-${instStatus}" style="font-size:9px">${STATUS_LABELS[instStatus]||'Available'} this cycle</span></div>
+          </div>
+          <div class="tl-right">
+            <div class="tl-cycle-badge ${cycleBadge(o.cycle)}">${cycleShort(o.cycle)}</div>
+            <div class="tl-days${isSoon?' soon':''}">${days===0?'Resets today!':days===1?'Tomorrow':days<0?'Resetting…':'In '+days+' days'}</div>
+            <div style="font-size:9px;color:var(--t3);margin-top:1px">${fmtD(nextReset)}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+
+  const pausedHTML=pausedOffers.length?`
+    <div class="slabel" style="padding-top:8px">Paused by bank</div>
+    <div style="padding:0 18px">
+      ${pausedOffers.map(o=>{const ci=cat(o.cat);const card=S.cards.find(c=>c.id===o.cardId);return`
+        <div class="tl-paused-row" onclick="openOfferDetail('${o.id}')">
+          <div class="tl-ic">${ci.e}</div>
+          <div class="tl-info"><div class="tl-name">${o.name}</div><div class="tl-card">${card?.bank||''}</div></div>
+          <span class="chip chip-paused">Paused</span>
+        </div>`}).join('')}
+    </div>`:'';
+
+  const endedHTML=endedOffers.length?`
+    <div class="slabel" style="padding-top:8px">Discontinued</div>
+    <div style="padding:0 18px">
+      ${endedOffers.map(o=>{const ci=cat(o.cat);const card=S.cards.find(c=>c.id===o.cardId);return`
+        <div class="tl-ended-row" onclick="openOfferDetail('${o.id}')">
+          <div class="tl-ic" style="opacity:.5">${ci.e}</div>
+          <div class="tl-info"><div class="tl-name">${o.name}</div><div class="tl-card">${card?.bank||''}</div></div>
+          <span class="chip chip-ended">Ended</span>
+        </div>`}).join('')}
+    </div>`:'';
+
+  return`<div class="topbar"><div class="tbar-title">Upcoming <em>Resets</em></div></div>
+    <div class="slabel">Reset schedule — all active offers</div>
+    <div class="tl-wrap ani">
+      ${activeHTML||emptyHTML('📅','Nothing active','All your active offers will show their next reset date here.')}
     </div>
-    <div class="sheet-body">
-      <div class="card-detail-mini">
-        <div class="mini-dot" style="background:${c.color}"></div>
-        <div>
-          <div style="font-size:14px;font-weight:600">${c.type} Card</div>
-          <div style="font-size:12px;color:var(--text2)">${c.first6}••••${c.last4}</div>
-        </div>
-        <div style="margin-left:auto">
-          <div style="font-size:20px;font-weight:700">${avail}</div>
-          <div style="font-size:11px;color:var(--text2)">Available</div>
-        </div>
-      </div>
-      <div class="section-label" style="padding:0 0 10px">Offers on this card</div>
-      <div id="card-coupon-list">${renderCouponItems(c.coupons.map(cp=>({...cp,cardId:c.id,cardBank:c.bank,cardColor:c.color})),'card')}</div>
-      <div class="btn-gap" style="margin-top:20px">
-        <button class="btn btn-secondary btn-sm" style="width:100%" onclick="openAddOffer(${c.id})">＋ Add Offer</button>
-        <button class="btn btn-danger btn-sm" style="width:100%" onclick="deleteCard(${c.id})">Remove Card</button>
-      </div>
-    </div>
-    <div style="height:20px"></div>`);
+    ${pausedHTML}${endedHTML}
+    <div style="height:16px"></div>`;
 }
 
-// COUPON DETAIL
-function openCouponDetail(couponId,cardId){
-  const c=state.cards.find(x=>x.id===cardId);if(!c)return;
-  const cp=c.coupons.find(x=>x.id===couponId);if(!cp)return;
-  const ci=catInfo(cp.cat);
-  const days=cp.status==='redeemed'&&cp.useByDate?daysUntil(cp.useByDate):null;
+// ── OFFER DETAIL SHEET ────────────────────────────────────────────────────
+function openOfferDetail(offerId){
+  const o=S.offers.find(x=>x.id===offerId);if(!o)return;
+  const card=S.cards.find(c=>c.id===o.cardId);
+  const ci=cat(o.cat);
+  const inst=getCurrentInstance(o);
+  const nextReset=getNextResetDate(o);
+  const days=inst&&inst.status==='redeemed'&&inst.useByDate?daysUntil(inst.useByDate):null;
   const pct=days!==null?Math.max(0,Math.min(100,Math.round((days/30)*100))):null;
-  const fillColor=days!==null?(days<=3?'#F43F5E':days<=7?'#F59E0B':'#10B981'):'#10B981';
+  const fillCol=days!==null?(days<=3?'#F05252':days<=7?'#F0B429':'#0ECB81'):'#0ECB81';
+
+  // History of past instances (excluding current cycle)
+  const cs=cycleStartFor(o.cycle);
+  const pastInsts=o.instances.filter(i=>i.cycleStart!==cs).sort((a,b)=>new Date(b.cycleStart)-new Date(a.cycleStart));
+
+  // Lifecycle control HTML
+  const lcHTML=()=>{
+    if(o.lifecycle==='active')return`
+      <div class="lc-ctrl lc-active-ctrl">
+        <div class="lc-label" style="color:var(--em)">● Offer Active</div>
+        <div class="lc-sub">This offer recurs each ${cycleL(o.cycle).toLowerCase()}. Use the options below if the bank changes this.</div>
+        <div class="lc-btns">
+          <button class="lc-btn lc-btn-pause" onclick="promptLC('${offerId}','paused')">⏸ Pause offer</button>
+          <button class="lc-btn lc-btn-end" onclick="promptLC('${offerId}','ended')">🔴 Discontinue</button>
+        </div>
+      </div>`;
+    if(o.lifecycle==='paused')return`
+      <div class="lc-ctrl lc-paused-ctrl">
+        <div class="lc-label" style="color:var(--co)">⏸ Paused by bank${o.lcNote?' — '+o.lcNote:''}</div>
+        <div class="lc-sub">No new cycles will open until you resume. History is preserved.</div>
+        <div class="lc-btns">
+          <button class="lc-btn lc-btn-resume" onclick="setLC('${offerId}','active','')">▶ Resume offer</button>
+          <button class="lc-btn lc-btn-end" onclick="promptLC('${offerId}','ended')">🔴 Discontinue</button>
+        </div>
+      </div>`;
+    return`
+      <div class="lc-ctrl lc-ended-ctrl">
+        <div class="lc-label" style="color:var(--t2)">🔴 Discontinued${o.lcNote?' — '+o.lcNote:''}</div>
+        <div class="lc-sub">This offer has ended. History is preserved below.</div>
+        <div class="lc-btns">
+          <button class="lc-btn lc-btn-resume" onclick="setLC('${offerId}','active','')">▶ Reactivate</button>
+        </div>
+      </div>`;
+  };
+
   openSheet(`
-    <div class="sheet-header">
+    <div class="sheet-hdr">
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="font-size:28px">${ci.em}</div>
-        <div class="sheet-title">${cp.name}</div>
+        <span style="font-size:26px">${ci.e}</span>
+        <div class="sheet-title">${o.name}</div>
       </div>
       <button class="sheet-close" onclick="closeSheet()">✕</button>
     </div>
-    <div class="sheet-body">
-      ${pct!==null?`<div class="deadline-bar">
-        <div class="deadline-label">Time to use redeemed voucher</div>
-        <div class="deadline-track"><div class="deadline-fill" style="width:${pct}%;background:${fillColor}"></div></div>
-        <div class="deadline-nums"><span>0 days</span><span>${days} days left</span><span>30 days</span></div>
+    <div class="sbody">
+      <div class="mini-card-hdr">
+        <div class="mini-dot" style="background:${CARD_GRADS[card?.grad||0].c}"></div>
+        <div><div style="font-size:13px;font-weight:700">${card?.bank||''}</div>
+        <div style="font-size:11px;color:var(--t2)">${card?.type||''} · ●●●● ${card?.last4||''}</div></div>
+      </div>
+
+      ${inst&&inst.status==='redeemed'&&pct!==null?`<div class="dl-bar">
+        <div class="dl-label">Time remaining to use this voucher</div>
+        <div class="dl-track"><div class="dl-fill" style="width:${pct}%;background:${fillCol}"></div></div>
+        <div class="dl-nums"><span>Redeemed</span><span style="font-weight:700;color:${fillCol}">${days} days left</span><span>30 days</span></div>
       </div>`:''}
-      <div class="detail-row"><span class="detail-key">Card</span><span class="detail-val">${c.bank}</span></div>
-      <div class="detail-row"><span class="detail-key">Category</span><span class="detail-val">${ci.em} ${ci.label}</span></div>
-      <div class="detail-row"><span class="detail-key">Reset cycle</span><span class="detail-val">${cycleLabel(cp.cycle)}</span></div>
-      <div class="detail-row"><span class="detail-key">Transferable</span><span class="detail-val" style="color:${cp.tradeable?'var(--emerald)':'var(--text2)'}">${cp.tradeable?'Yes — Can sell/transfer':'No — Personal use only'}</span></div>
-      <div class="detail-row"><span class="detail-key">Status</span><span class="status-chip chip-${cp.status}">${statusLabel(cp.status)}</span></div>
-      ${cp.redeemDate?`<div class="detail-row"><span class="detail-key">Redeem date</span><span class="detail-val">${fmtDate(cp.redeemDate)}</span></div>`:''}
-      ${cp.useByDate?`<div class="detail-row"><span class="detail-key">Use by</span><span class="detail-val" style="color:${days!==null&&days<=7?'var(--coral)':'inherit'}">${fmtDate(cp.useByDate)}</span></div>`:''}
-      ${cp.nextReset&&cp.status==='available'?`<div class="detail-row"><span class="detail-key">Next reset</span><span class="detail-val">${fmtDate(cp.nextReset)}</span></div>`:''}
-      ${cp.notes?`<div class="detail-row"><span class="detail-key">Notes</span><span class="detail-val">${cp.notes}</span></div>`:''}
-      <div style="height:20px"></div>
-      ${cp.status==='available'?`<button class="btn btn-primary" onclick="openRedeemFlow(${couponId},${cardId})">🎁 Mark as Redeemed</button>`:''}
-      ${cp.status==='redeemed'?`
-        <div style="display:flex;gap:10px">
-          <button class="btn btn-primary" style="flex:1" onclick="markStatus(${couponId},${cardId},'used')">✅ Mark Used</button>
-          ${cp.tradeable?`<button class="btn btn-secondary" style="flex:1" onclick="markStatus(${couponId},${cardId},'sold')">💸 Mark Sold</button>`:''}
-        </div>`:''
-      }
-      <div style="margin-top:10px">
-        <button class="btn btn-danger" onclick="deleteCoupon(${couponId},${cardId})">Remove Offer</button>
-      </div>
+
+      <div class="drow"><span class="dkey">Category</span><span class="dval">${ci.e} ${ci.l}</span></div>
+      <div class="drow"><span class="dkey">Reset cycle</span><span class="dval">${cycleL(o.cycle)}</span></div>
+      <div class="drow"><span class="dkey">Transferable</span><span class="dval" style="color:${o.tradeable?'var(--em)':'var(--t2)'}">${o.tradeable?'Yes — can sell/transfer':'No — personal use only'}</span></div>
+      <div class="drow"><span class="dkey">Next reset</span><span class="dval" style="color:var(--vl)">${fmtD(nextReset)}</span></div>
+
+      ${o.lifecycle==='active'&&inst?`
+        <div class="div"></div>
+        <div style="font-size:12px;font-weight:700;color:var(--t2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Current cycle — ${inst.cycleLabel}</div>
+        <div class="drow"><span class="dkey">Status</span><span class="chip chip-${inst.status}">${STATUS_LABELS[inst.status]}</span></div>
+        ${inst.redeemDate?`<div class="drow"><span class="dkey">Redeemed on</span><span class="dval">${fmtD(inst.redeemDate)}</span></div>`:''}
+        ${inst.useByDate?`<div class="drow"><span class="dkey">Use by</span><span class="dval" style="color:${days!==null&&days<=7?'var(--co)':'inherit'}">${fmtD(inst.useByDate)}</span></div>`:''}
+        ${inst.notes?`<div class="drow"><span class="dkey">Notes</span><span class="dval">${inst.notes}</span></div>`:''}
+        <div class="btn-gap">
+          ${inst.status==='available'?`<button class="btn btn-p" onclick="openRedeemFlow('${offerId}')">🎁 Mark as Redeemed</button>`:''}
+          ${inst.status==='redeemed'?`<div class="btn-row">
+            <button class="btn btn-p" onclick="markInstStatus('${offerId}','used')">✅ Mark Used</button>
+            ${o.tradeable?`<button class="btn btn-s" onclick="markInstStatus('${offerId}','sold')">💸 Mark Sold</button>`:''}
+          </div>`:''}
+          ${inst.status==='redeemed'||inst.status==='available'?`<button class="btn btn-s" onclick="markInstStatus('${offerId}','skipped')" style="font-size:13px">Skip this cycle</button>`:''}
+        </div>`:''}
+
+      <div class="div"></div>
+      ${lcHTML()}
+
+      ${pastInsts.length?`
+        <div class="div"></div>
+        <div style="font-size:12px;font-weight:700;color:var(--t2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Past cycles</div>
+        ${pastInsts.map(i=>`<div class="hist-item">
+          <div><div class="hist-cycle">${i.cycleLabel}</div><div style="font-size:11px;color:var(--t3)">${i.redeemDate?'Redeemed '+fmtD(i.redeemDate):'Not redeemed'}</div></div>
+          <div class="hist-right"><span class="chip chip-${i.status}">${STATUS_LABELS[i.status]}</span></div>
+        </div>`).join('')}`:''}
+
+      <div class="div"></div>
+      <button class="btn btn-d" onclick="deleteOffer('${offerId}')">Remove offer</button>
     </div>
     <div style="height:20px"></div>`);
 }
 
-// REDEEM FLOW — date picker
-function openRedeemFlow(couponId,cardId){
-  const c=state.cards.find(x=>x.id===cardId);
-  const cp=c.coupons.find(x=>x.id===couponId);
-  const ci=catInfo(cp.cat);
+// ── REDEEM FLOW ────────────────────────────────────────────────────────────
+function openRedeemFlow(offerId){
+  const o=S.offers.find(x=>x.id===offerId);if(!o)return;
+  const ci=cat(o.cat);
+  const card=S.cards.find(c=>c.id===o.cardId);
   openSheet(`
-    <div class="sheet-header">
-      <div class="sheet-title">Redeem Offer</div>
-      <button class="sheet-close" onclick="closeSheet()">✕</button>
-    </div>
-    <div class="sheet-body">
-      <div class="redeem-hero">
-        <div class="redeem-emoji">${ci.em}</div>
-        <div class="redeem-title">${cp.name}</div>
-        <div class="redeem-sub">${c.bank} · ${cycleLabel(cp.cycle)} reset</div>
+    <div class="sheet-hdr"><div class="sheet-title">Redeem Offer</div>
+      <button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sbody">
+      <div class="rdm-hero">
+        <div class="rdm-em">${ci.e}</div>
+        <div class="rdm-title">${o.name}</div>
+        <div class="rdm-sub">${card?.bank||''} · ${cycleL(o.cycle)} · ${currentCycleLabel(o.cycle,cycleStartFor(o.cycle))}</div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Date redeemed from website</label>
-        <input class="form-input" type="date" id="redeem-date-input" value="${today()}" max="${today()}">
-        <div style="font-size:12px;color:var(--text3);margin-top:6px">You have 30 days from this date to use the voucher balance.</div>
+      <div class="fg">
+        <label>Date redeemed from website</label>
+        <input class="finput" type="date" id="rdm-date" value="${todayStr()}" max="${todayStr()}">
+        <div class="fhint">Pre-filled with today. Change if you redeemed earlier.</div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Notes (optional)</label>
-        <input class="form-input" type="text" id="redeem-notes" placeholder="e.g. Code: ABC123, transferred to Paytm…">
+      <div class="info-box info-am">⏱ After redeeming on the website, you have <strong>30 days</strong> to use the voucher balance — unless it's a transferable type that can be moved to a wallet.</div>
+      <div class="fg">
+        <label>Notes (optional)</label>
+        <input class="finput" type="text" id="rdm-notes" placeholder="e.g. Code ABC123, added to Paytm wallet…">
       </div>
-      <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--text2)">
-        ⏱ After redeeming on the website, the balance must be used within <strong style="color:var(--amber)">30 days</strong> unless it's a transferable wallet type.
-      </div>
-      <button class="btn btn-primary" onclick="confirmRedeem(${couponId},${cardId})">Confirm Redemption</button>
-    </div>
-    <div style="height:20px"></div>`);
+      <button class="btn btn-p" onclick="confirmRedeem('${offerId}')">Confirm Redemption</button>
+    </div><div style="height:20px"></div>`);
 }
 
-function confirmRedeem(couponId,cardId){
-  const dateVal=document.getElementById('redeem-date-input').value;
-  const notes=document.getElementById('redeem-notes').value;
+function confirmRedeem(offerId){
+  const dateVal=document.getElementById('rdm-date').value;
+  const notes=document.getElementById('rdm-notes').value;
   if(!dateVal){alert('Please enter a redeem date');return}
-  const c=state.cards.find(x=>x.id===cardId);
-  const cp=c.coupons.find(x=>x.id===couponId);
-  const useBy=new Date(dateVal+'T00:00:00');
-  useBy.setDate(useBy.getDate()+30);
-  cp.status='redeemed';cp.redeemDate=dateVal;cp.notes=notes;
-  cp.useByDate=useBy.toISOString().split('T')[0];
-  saveState();closeSheet();render();
+  const o=S.offers.find(x=>x.id===offerId);
+  const inst=getCurrentInstance(o);if(!inst)return;
+  const useBy=new Date(dateVal+'T00:00:00');useBy.setDate(useBy.getDate()+30);
+  inst.status='redeemed';inst.redeemDate=dateVal;inst.notes=notes;
+  inst.useByDate=useBy.toISOString().split('T')[0];
+  save();closeSheet();render();
 }
 
-function markStatus(couponId,cardId,newStatus){
-  const c=state.cards.find(x=>x.id===cardId);
-  const cp=c.coupons.find(x=>x.id===couponId);
-  cp.status=newStatus;saveState();closeSheet();render();
+function markInstStatus(offerId,newStatus){
+  const o=S.offers.find(x=>x.id===offerId);if(!o)return;
+  const inst=getCurrentInstance(o);if(!inst)return;
+  inst.status=newStatus;save();closeSheet();render();
 }
 
-// ADD CARD SHEET
-let _newCardImg=null,_newCardColor=CARD_COLORS[0],_newCardGrad=CARD_GRADIENTS[0];
+// ── LIFECYCLE CONTROL ──────────────────────────────────────────────────────
+function promptLC(offerId,newLC){
+  const msg=newLC==='paused'?'Reason for pause (optional, e.g. "Bank suspended Q2 2025"):':'Reason for discontinuation (optional):';
+  const note=prompt(msg)||'';
+  setLC(offerId,newLC,note);
+}
+function setLC(offerId,newLC,note){
+  const o=S.offers.find(x=>x.id===offerId);if(!o)return;
+  o.lifecycle=newLC;o.lcNote=note||'';
+  if(newLC==='active') ensureCurrentInstance(o);
+  save();closeSheet();render();
+}
+
+// ── ADD CARD ───────────────────────────────────────────────────────────────
+let _newImg=null;
 function openAddCard(){
-  _newCardImg=null;_newCardColor=CARD_COLORS[0];_newCardGrad=CARD_GRADIENTS[0];
+  _newImg=null;
   openSheet(`
-    <div class="sheet-header">
-      <div class="sheet-title">Add New Card</div>
-      <button class="sheet-close" onclick="closeSheet()">✕</button>
-    </div>
-    <div class="sheet-body">
-      <div class="form-group">
-        <label class="form-label">Card Image (optional)</label>
-        <div class="img-upload-area" id="card-img-area">
-          <input type="file" accept="image/*" onchange="handleCardImg(event)">
-          <div class="img-icon">🖼️</div>
-          <div class="img-label">Tap to upload card photo</div>
+    <div class="sheet-hdr"><div class="sheet-title">Add New Card</div>
+      <button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sbody">
+      <div class="fg">
+        <label>Card image (optional)</label>
+        <div class="img-up" id="iup">
+          <input type="file" accept="image/*" onchange="handleImg(event)">
+          <div class="iup-ic">🖼️</div><div class="iup-lbl">Tap to upload card photo</div>
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Card color accent</label>
-        <div class="color-presets">
-          ${CARD_COLORS.map((col,i)=>`<div class="color-preset${i===0?' selected':''}" style="background:${col}" data-color="${col}" data-grad="${CARD_GRADIENTS[i]}" onclick="selectCardColor(this,'${col}','${CARD_GRADIENTS[i]}')"></div>`).join('')}
+      <div class="fg">
+        <label>Card colour</label>
+        <div class="cpresets">
+          ${CARD_GRADS.map((g,i)=>`<div class="cpreset${i===0?' sel':''}" style="background:${g.g}" data-gi="${i}" onclick="selGrad(this,${i})"></div>`).join('')}
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Bank / Issuer Name</label>
-        <input class="form-input" type="text" id="c-bank" placeholder="e.g. HDFC Bank">
+      <div class="fg"><label>Bank / Issuer name</label><input class="finput" type="text" id="c-bank" placeholder="e.g. HDFC Bank"></div>
+      <div class="frow">
+        <div class="fg"><label>First 6 digits</label><input class="finput" type="text" id="c-f6" maxlength="6" placeholder="472381" inputmode="numeric"></div>
+        <div class="fg"><label>Last 4 digits</label><input class="finput" type="text" id="c-l4" maxlength="4" placeholder="4521" inputmode="numeric"></div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">First 6 digits</label>
-          <input class="form-input" type="text" id="c-first6" maxlength="6" placeholder="472381" inputmode="numeric">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Last 4 digits</label>
-          <input class="form-input" type="text" id="c-last4" maxlength="4" placeholder="4521" inputmode="numeric">
-        </div>
+      <div class="fg"><label>Card type</label>
+        <select class="fselect" id="c-type"><option>Credit</option><option>Debit</option><option>Gift</option></select>
       </div>
-      <div class="form-group">
-        <label class="form-label">Card type</label>
-        <select class="form-select" id="c-type">
-          <option>Credit</option><option>Debit</option><option>Gift</option>
-        </select>
-      </div>
-      <div style="height:4px"></div>
-      <button class="btn btn-primary" onclick="saveNewCard()">Save Card</button>
-    </div>
-    <div style="height:20px"></div>`);
+      <button class="btn btn-p" onclick="saveCard()">Save Card</button>
+    </div><div style="height:20px"></div>`);
+  window._selGrad=0;
 }
-function handleCardImg(e){
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    _newCardImg=ev.target.result;
-    const area=document.getElementById('card-img-area');
-    area.innerHTML=`<img src="${_newCardImg}" alt="card preview"><button class="img-remove" onclick="removeCardImg(event)">✕</button>`;
-  };reader.readAsDataURL(file);
+function handleImg(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{_newImg=ev.target.result;
+    const a=document.getElementById('iup');
+    a.innerHTML=`<img src="${_newImg}" alt=""><button class="img-rm" onclick="rmImg(event)">✕</button>`;};
+  r.readAsDataURL(f);
 }
-function removeCardImg(e){e.stopPropagation();_newCardImg=null;const area=document.getElementById('card-img-area');area.innerHTML=`<input type="file" accept="image/*" onchange="handleCardImg(event)"><div class="img-icon">🖼️</div><div class="img-label">Tap to upload card photo</div>`;}
-function selectCardColor(el,color,grad){
-  document.querySelectorAll('.color-preset').forEach(p=>p.classList.remove('selected'));
-  el.classList.add('selected');_newCardColor=color;_newCardGrad=grad;
-}
-function saveNewCard(){
+function rmImg(e){e.stopPropagation();_newImg=null;const a=document.getElementById('iup');a.innerHTML=`<input type="file" accept="image/*" onchange="handleImg(event)"><div class="iup-ic">🖼️</div><div class="iup-lbl">Tap to upload card photo</div>`;}
+function selGrad(el,i){document.querySelectorAll('.cpreset').forEach(p=>p.classList.remove('sel'));el.classList.add('sel');window._selGrad=i;}
+function saveCard(){
   const bank=document.getElementById('c-bank').value.trim();
-  const first6=document.getElementById('c-first6').value.trim();
-  const last4=document.getElementById('c-last4').value.trim();
+  const l4=document.getElementById('c-l4').value.trim();
+  const f6=document.getElementById('c-f6').value.trim();
   const type=document.getElementById('c-type').value;
-  if(!bank||!last4){alert('Please fill bank name and last 4 digits');return}
-  const id=Date.now();
-  state.cards.push({id,bank,type,last4,first6:first6||'000000',color:_newCardColor,gradient:_newCardGrad,image:_newCardImg,coupons:[]});
-  saveState();closeSheet();render();
+  if(!bank||!l4){alert('Bank name and last 4 digits are required');return}
+  S.cards.push({id:uid(),bank,type,last4:l4,first6:f6||'000000',grad:window._selGrad||0,image:_newImg||null});
+  save();closeSheet();render();
+}
+function openCardDetail(cardId){
+  const card=S.cards.find(c=>c.id===cardId);if(!card)return;
+  const offers=S.offers.filter(o=>o.cardId===cardId);
+  const avail=offers.filter(o=>{if(o.lifecycle!=='active')return false;const i=getCurrentInstance(o);return i&&i.status==='available';}).length;
+  openSheet(`
+    <div class="sheet-hdr"><div class="sheet-title">${card.bank}</div>
+      <button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sbody">
+      <div class="mini-card-hdr">
+        <div class="mini-dot" style="background:${CARD_GRADS[card.grad||0].c}"></div>
+        <div><div style="font-size:13px;font-weight:700">${card.type} · ●●●● ${card.last4}</div>
+        <div style="font-size:11px;color:var(--t2)">${card.first6}••••${card.last4}</div></div>
+        <div style="margin-left:auto;text-align:right"><div style="font-size:22px;font-weight:800">${avail}</div><div style="font-size:10px;color:var(--t2)">Available now</div></div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">Offers on this card</div>
+      ${offers.map(o=>renderOfferItem(o,card,'card')).join('')||emptyHTML('🎁','No offers yet','Tap Add Offer to set up recurring vouchers for this card.')}
+      <div class="btn-gap" style="margin-top:18px">
+        <button class="btn btn-s" onclick="openAddOffer('${cardId}')">＋ Add Offer</button>
+        <button class="btn btn-d" onclick="deleteCard('${cardId}')">Remove card</button>
+      </div>
+    </div><div style="height:20px"></div>`);
 }
 
-// ADD OFFER SHEET
-let _selCat=null,_newOfferCardId=null;
+// ── ADD OFFER ──────────────────────────────────────────────────────────────
 function openAddOffer(cardId){
-  _selCat=null;_newOfferCardId=cardId;
+  S._selCat=null;S._tradeable=true;S._offerCardId=cardId;
   openSheet(`
-    <div class="sheet-header">
-      <div class="sheet-title">Add Offer</div>
-      <button class="sheet-close" onclick="closeSheet()">✕</button>
-    </div>
-    <div class="sheet-body">
-      <div class="form-group">
-        <label class="form-label">Category</label>
+    <div class="sheet-hdr"><div class="sheet-title">Add Offer</div>
+      <button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sbody">
+      <div class="fg">
+        <label>Category</label>
         <div class="cat-grid">
-          ${CATEGORIES.map(c=>`<div class="cat-option" data-cat="${c.id}" onclick="selectCat('${c.id}')">
-            <span class="cat-em">${c.em}</span><span class="cat-nm">${c.label}</span>
-          </div>`).join('')}
+          ${CATS.map(c=>`<div class="cat-opt" data-cat="${c.id}" onclick="selCat('${c.id}')">
+            <span class="cem">${c.e}</span><span class="cnm">${c.l}</span></div>`).join('')}
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Offer name</label>
-        <input class="form-input" type="text" id="o-name" placeholder="e.g. Spa Session, OTT Subscription…">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Reset cycle</label>
-        <select class="form-select" id="o-cycle">
+      <div class="fg"><label>Offer name</label>
+        <input class="finput" type="text" id="o-name" placeholder="e.g. Spa Session, OTT Subscription…"></div>
+      <div class="fg"><label>Reset cycle</label>
+        <select class="fselect" id="o-cycle" onchange="updateNextReset()">
           ${CYCLES.map(c=>`<option value="${c.v}">${c.l}</option>`).join('')}
         </select>
       </div>
-      <div class="form-group">
-        <label class="form-label">Next reset date</label>
-        <input class="form-input" type="date" id="o-reset" value="${nextQuarterDate()}">
+      <div class="fg"><label>Next reset date</label>
+        <input class="finput" type="date" id="o-reset" value="${cycleEndFor(3,cycleStartFor(3))}">
+        <div class="fhint">Auto-calculated from cycle. Edit if bank has a different schedule.</div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Transferable / Tradeable</label>
-        <div class="toggle-group">
-          <button class="toggle-opt" id="trd-no" onclick="setTradeable(false)">No — Personal only</button>
-          <button class="toggle-opt active" id="trd-yes" onclick="setTradeable(true)">Yes — Can sell/transfer</button>
+      <div class="fg"><label>Transferable / Tradeable</label>
+        <div class="tgl-group" style="margin:0">
+          <button class="tgl-opt active" id="td-no" onclick="setTrd(false)">Personal only</button>
+          <button class="tgl-opt" id="td-yes" onclick="setTrd(true)">Can sell / transfer</button>
         </div>
       </div>
-      <div style="height:4px"></div>
-      <button class="btn btn-primary" onclick="saveNewOffer()">Add Offer</button>
-    </div>
-    <div style="height:20px"></div>`);
-  window._tradeable=true;
+      <button class="btn btn-p" onclick="saveOffer()">Add Offer</button>
+    </div><div style="height:20px"></div>`);
+  S._tradeable=false;
 }
-function selectCat(id){
-  _selCat=id;
-  document.querySelectorAll('.cat-option').forEach(el=>el.classList.toggle('selected',el.dataset.cat===id));
-  const ci=catInfo(id);
-  const nameInput=document.getElementById('o-name');
-  if(!nameInput.value)nameInput.value=ci.label+' Voucher';
+function selCat(id){
+  S._selCat=id;
+  document.querySelectorAll('.cat-opt').forEach(el=>el.classList.toggle('sel',el.dataset.cat===id));
+  const ci=cat(id);
+  const ni=document.getElementById('o-name');if(!ni.value)ni.value=ci.l+' Voucher';
 }
-function setTradeable(v){
-  window._tradeable=v;
-  document.getElementById('trd-yes').classList.toggle('active',v);
-  document.getElementById('trd-no').classList.toggle('active',!v);
+function setTrd(v){
+  S._tradeable=v;
+  document.getElementById('td-yes').classList.toggle('active',v);
+  document.getElementById('td-no').classList.toggle('active',!v);
 }
-function nextQuarterDate(){
-  const now=new Date();const m=now.getMonth();
-  const nextQ=[3,6,9,0].find(x=>x>m)||3;
-  const yr=nextQ===0?now.getFullYear()+1:now.getFullYear();
-  return`${yr}-${String(nextQ+1).padStart(2,'0')}-01`;
+function updateNextReset(){
+  const cyc=parseInt(document.getElementById('o-cycle').value);
+  document.getElementById('o-reset').value=cycleEndFor(cyc,cycleStartFor(cyc));
 }
-function saveNewOffer(){
+function saveOffer(){
   const name=document.getElementById('o-name').value.trim();
   const cycle=parseInt(document.getElementById('o-cycle').value);
   const reset=document.getElementById('o-reset').value;
   if(!name){alert('Please enter an offer name');return}
-  if(!_selCat){alert('Please select a category');return}
-  const c=state.cards.find(x=>x.id===_newOfferCardId);
-  c.coupons.push({id:Date.now(),name,cat:_selCat,cycle,tradeable:window._tradeable!==false,status:'available',redeemDate:null,useByDate:null,nextReset:reset||nextQuarterDate(),notes:''});
-  saveState();closeSheet();render();
+  if(!S._selCat){alert('Please select a category');return}
+  const o={id:uid(),cardId:S._offerCardId,name,cat:S._selCat,cycle,tradeable:!!S._tradeable,lifecycle:'active',lcNote:'',instances:[]};
+  ensureCurrentInstance(o);
+  S.offers.push(o);
+  save();closeSheet();render();
 }
 
-function deleteCard(cardId){
-  if(!confirm('Remove this card and all its offers?'))return;
-  state.cards=state.cards.filter(x=>x.id!==cardId);
-  saveState();closeSheet();render();
+// ── FILTERS ────────────────────────────────────────────────────────────────
+function filterAllCat(c){
+  document.querySelectorAll('#all-cats .cpill').forEach(p=>p.classList.toggle('active',p.dataset.c===c));
+  const all=S.offers.filter(o=>c==='all'||o.cat===c);
+  document.getElementById('all-offer-list').innerHTML=all.map(o=>renderOfferItem(o,S.cards.find(x=>x.id===o.cardId),'all')).join('')||emptyHTML('🗂️','No offers in this category','');
 }
-function deleteCoupon(couponId,cardId){
-  if(!confirm('Remove this offer?'))return;
-  const c=state.cards.find(x=>x.id===cardId);
-  c.coupons=c.coupons.filter(x=>x.id!==couponId);
-  saveState();closeSheet();render();
+function filterAvailCat(c){
+  document.querySelectorAll('#av-cats .cpill').forEach(p=>p.classList.toggle('active',p.dataset.c===c));
+  const items=S.offers.filter(o=>o.lifecycle==='active'&&(c==='all'||o.cat===c)).filter(o=>{const i=getCurrentInstance(o);return i&&i.status==='available';});
+  document.getElementById('av-list').innerHTML=items.map(o=>renderOfferItem(o,S.cards.find(x=>x.id===o.cardId),'avail')).join('')||emptyHTML('🎁','No offers in this category','');
 }
-
-// CAT FILTER
-function filterCat(cat){
-  document.querySelectorAll('.cat-scroll .cat-pill').forEach(p=>p.classList.toggle('active',p.textContent.includes(cat==='all'?'All':catInfo(cat).label)));
-  const all=allCoupons().filter(x=>cat==='all'||x.cat===cat);
-  document.getElementById('all-coupon-list').innerHTML=renderCouponItems(all,'all');
+function setRedFilter(sf){
+  document.querySelectorAll('.tgl-opt').forEach(b=>b.classList.toggle('active',b.dataset.sf===sf));
+  const all=S.offers.flatMap(o=>{const card=S.cards.find(c=>c.id===o.cardId);return o.instances.filter(i=>i.status!=='available').map(i=>({o,i,card}));}).sort((a,b)=>new Date(b.i.redeemDate||0)-new Date(a.i.redeemDate||0));
+  document.getElementById('red-list').innerHTML=renderRedeemedItems(all,sf);
 }
 
-// TAB SWITCH
+// ── DELETE ─────────────────────────────────────────────────────────────────
+function deleteOffer(id){if(!confirm('Remove this offer and its history?'))return;S.offers=S.offers.filter(o=>o.id!==id);save();closeSheet();render();}
+function deleteCard(id){if(!confirm('Remove card and ALL its offers?'))return;S.cards=S.cards.filter(c=>c.id!==id);S.offers=S.offers.filter(o=>o.cardId!==id);save();closeSheet();render();}
+
+// ── SHEET ──────────────────────────────────────────────────────────────────
+function openSheet(html){document.getElementById('shc').innerHTML=html;document.getElementById('ov').classList.add('open');}
+function closeSheet(e){if(!e||e.target===document.getElementById('ov'))document.getElementById('ov').classList.remove('open');}
+
+// ── TAB SWITCH ─────────────────────────────────────────────────────────────
 function switchTab(tab){
-  state.tab=tab;
+  S.tab=tab;
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
   render();
 }
 
-// SCROLL TO TOP BUTTON
-document.getElementById('view').addEventListener('scroll',function(){
-  document.getElementById('scrollTopBtn').classList.toggle('show',this.scrollTop>200);
-});
+// ── UTIL ───────────────────────────────────────────────────────────────────
+function emptyHTML(ic,t,s){return`<div class="empty"><div class="ei">${ic}</div><div class="et">${t}</div><div class="es">${s}</div></div>`;}
 
-// INITIAL RENDER
+// ── INIT ───────────────────────────────────────────────────────────────────
 render();
 </script>
 </body>
