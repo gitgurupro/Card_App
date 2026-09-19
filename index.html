@@ -16,38 +16,33 @@
   --v:#6D5FFD;--vl:#8B7FFF;--vd:#4C3FD4;
   --em:#0ECB81;--am:#F0B429;--co:#F05252;--bl:#3B9EFF;
   --text:#EAECF4;--t2:#8892A4;--t3:#4E5A6E;
-  --bd:#1E2A3D;--r:14px;--tab:64px;
-  --ff:'Inter',sans-serif;
+  --bd:#1E2A3D;--tab:64px;--ff:'Inter',sans-serif;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--ff);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 #app{display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto;position:relative;overflow:hidden}
-#view{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--tab) + 12px);scrollbar-width:none}
+#view{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--tab)+12px);scrollbar-width:none}
 #view::-webkit-scrollbar{display:none}
 
-/* TOP BAR */
 .topbar{padding:18px 18px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;background:linear-gradient(180deg,var(--bg) 75%,transparent)}
-.tbar-title{font-size:20px;font-weight:800;letter-spacing:-0.4px}
+.tbar-title{font-size:20px;font-weight:800;letter-spacing:-0.4px;cursor:pointer;user-select:none}
 .tbar-title em{color:var(--vl);font-style:normal}
 .tbar-actions{display:flex;gap:8px}
 .ibtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--bd);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:16px;transition:.15s;flex-shrink:0}
 .ibtn:hover{background:var(--bg4);color:var(--text)}
 
-/* TAB BAR */
 #tabbar{height:var(--tab);display:flex;background:rgba(8,12,20,.96);backdrop-filter:blur(16px);border-top:1px solid var(--bd);position:relative;z-index:20;flex-shrink:0}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--t3);font-size:10px;font-family:var(--ff);font-weight:600;letter-spacing:0.02em;padding:6px 2px;transition:.15s;position:relative}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--t3);font-size:10px;font-family:var(--ff);font-weight:600;letter-spacing:.02em;padding:6px 2px;transition:.15s;position:relative}
 .tab-ic{font-size:19px;line-height:1;transition:.15s}
 .tab.active{color:var(--vl)}
 .tab.active .tab-ic{filter:drop-shadow(0 0 8px rgba(109,95,253,.7))}
 .notif{width:6px;height:6px;background:var(--co);border-radius:50%;position:absolute;top:8px;right:calc(50% - 14px)}
 
-/* SECTION LABEL */
-.slabel{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:0.08em;padding:18px 18px 8px;text-transform:uppercase}
+.slabel{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.08em;padding:18px 18px 8px;text-transform:uppercase}
 
-/* CARD CAROUSEL */
 .card-scroll{display:flex;gap:14px;padding:2px 18px 18px;overflow-x:auto;scrollbar-width:none}
 .card-scroll::-webkit-scrollbar{display:none}
-.bcard{min-width:295px;height:170px;border-radius:18px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;position:relative;overflow:hidden;flex-shrink:0;transition:transform .2s,box-shadow .2s;border:1px solid rgba(255,255,255,.06)}
-.bcard:active{transform:scale(0.98)}
+.bcard{min-width:295px;height:170px;border-radius:18px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;position:relative;overflow:hidden;flex-shrink:0;transition:transform .2s;border:1px solid rgba(255,255,255,.06)}
+.bcard:active{transform:scale(.98)}
 .bcard-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:17px}
 .bcard-overlay{position:absolute;inset:0;border-radius:17px}
 .bcard-content{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;justify-content:space-between}
@@ -60,9 +55,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .bcard-badge{background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700}
 .add-bcard{min-width:295px;height:170px;border-radius:18px;border:2px dashed var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--t3);flex-shrink:0;transition:.2s}
 .add-bcard:hover{border-color:var(--v);color:var(--vl);background:rgba(109,95,253,.04)}
-.add-bcard-plus{font-size:28px;line-height:1}
+.add-bcard-plus{font-size:28px}
 
-/* OFFER ITEMS */
 .offer-list{padding:0 18px;display:flex;flex-direction:column;gap:8px}
 .offer-item{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
 .offer-item:active{background:var(--bg3)}
@@ -90,21 +84,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .offer-paused-banner{background:rgba(240,82,82,.08);border:1px solid rgba(240,82,82,.2);border-radius:8px;padding:6px 10px;font-size:11px;color:#FCA5A5;margin-top:6px;width:100%}
 .offer-ended-banner{background:rgba(78,90,110,.08);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--t2);margin-top:6px;width:100%}
 
-/* LIFECYCLE BADGE on offer item */
-.lc-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.lc-active{background:var(--em)}
-.lc-paused{background:var(--co)}
-.lc-ended{background:var(--t3)}
-
-/* CAT FILTER */
 .cat-scroll{display:flex;gap:6px;padding:2px 18px 14px;overflow-x:auto;scrollbar-width:none}
 .cat-scroll::-webkit-scrollbar{display:none}
 .cpill{display:flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;border:1px solid var(--bd);background:var(--bg2);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;flex-shrink:0}
 .cpill.active{background:rgba(109,95,253,.2);border-color:var(--v);color:var(--vl)}
 
-/* TOGGLE GROUP */
 .tgl-group{display:flex;background:var(--bg3);border-radius:10px;padding:3px;gap:3px;margin:0 18px 14px}
-.tgl-opt{flex:1;padding:7px;border-radius:7px;border:none;background:none;color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--ff);transition:.15s;text-align:center}
+.tgl-opt{flex:1;padding:7px;border-radius:7px;border:none;background:none;color:var(--t2);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--ff);transition:.15s;text-align:center;white-space:nowrap}
 .tgl-opt.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.4)}
 
 /* UPCOMING TIMELINE */
@@ -112,12 +98,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .tl-group{margin-bottom:22px}
 .tl-month{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.07em;padding:4px 0 10px;display:flex;align-items:center;gap:8px;text-transform:uppercase}
 .tl-month::after{content:'';flex:1;height:1px;background:var(--bd)}
-.tl-item{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.tl-item{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.tl-item:active{background:var(--bg3)}
 .tl-item.tl-soon{border-color:rgba(109,95,253,.35);background:rgba(109,95,253,.05)}
 .tl-ic{font-size:17px;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--bg3);flex-shrink:0}
 .tl-info{flex:1;min-width:0}
 .tl-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tl-card{font-size:11px;color:var(--t2);margin-top:1px}
+.tl-status{margin-top:3px}
 .tl-right{text-align:right;flex-shrink:0}
 .tl-cycle-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-bottom:3px}
 .cy-q{background:rgba(14,203,129,.12);color:#34D399}
@@ -126,8 +114,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .cy-m{background:rgba(59,158,255,.12);color:#93C5FD}
 .tl-days{font-size:10px;color:var(--t3);margin-top:2px}
 .tl-days.soon{color:var(--vl);font-weight:700}
-.tl-paused-row{background:rgba(240,82,82,.05);border:1px solid rgba(240,82,82,.15);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.tl-ended-row{opacity:.45;border:1px dashed var(--bd);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.tl-paused-row{background:rgba(240,82,82,.05);border:1px solid rgba(240,82,82,.15);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer}
+.tl-ended-row{opacity:.45;border:1px dashed var(--bd);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer}
 
 /* OVERLAY / SHEET */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;max-width:430px;margin:0 auto}
@@ -141,7 +129,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .sheet-close{width:30px;height:30px;border-radius:50%;background:var(--bg3);border:none;color:var(--t2);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .sbody{padding:0 18px}
 
-/* FORMS */
 .fg{margin-bottom:14px}
 .fg label{display:block;font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.05em;margin-bottom:5px;text-transform:uppercase}
 .finput{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;color:var(--text);font-size:14px;font-family:var(--ff);outline:none;transition:.15s;-webkit-appearance:none;color-scheme:dark}
@@ -152,7 +139,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fhint{font-size:11px;color:var(--t3);margin-top:4px;line-height:1.4}
 
-/* IMAGE UPLOAD */
 .img-up{width:100%;height:130px;border:2px dashed var(--bd);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--t3);position:relative;overflow:hidden;transition:.2s}
 .img-up:hover{border-color:var(--v);color:var(--vl)}
 .img-up input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
@@ -161,12 +147,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .img-up .iup-ic{font-size:24px;pointer-events:none}
 .img-rm{position:absolute;top:7px;right:7px;z-index:2;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.65);border:none;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 
-/* COLOR PRESETS */
 .cpresets{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
 .cpreset{width:36px;height:36px;border-radius:9px;cursor:pointer;border:2px solid transparent;transition:.15s;position:relative;flex-shrink:0}
 .cpreset.sel::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800}
 
-/* CATEGORY GRID */
 .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:4px}
 .cat-opt{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 3px;border-radius:10px;border:1px solid var(--bd);background:var(--bg3);cursor:pointer;transition:.15s}
 .cat-opt:hover{background:var(--bg4)}
@@ -174,39 +158,49 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .cat-opt .cem{font-size:20px;line-height:1}
 .cat-opt .cnm{font-size:9px;color:var(--t2);font-weight:600;text-align:center;line-height:1.2}
 
-/* BUTTONS */
 .btn{width:100%;padding:13px;border-radius:12px;border:none;font-size:15px;font-weight:700;font-family:var(--ff);cursor:pointer;transition:.15s;letter-spacing:-.1px}
 .btn-p{background:linear-gradient(135deg,var(--vd),var(--vl));color:#fff}
 .btn-p:hover{opacity:.9}
-.btn-p:active{transform:scale(.99)}
 .btn-s{background:var(--bg3);color:var(--t2);border:1px solid var(--bd)}
 .btn-s:hover{color:var(--text);background:var(--bg4)}
 .btn-d{background:rgba(240,82,82,.1);color:var(--co);border:1px solid rgba(240,82,82,.25)}
-.btn-w{background:rgba(240,180,41,.1);color:var(--am);border:1px solid rgba(240,180,41,.25)}
+.btn-am{background:rgba(240,180,41,.1);color:var(--am);border:1px solid rgba(240,180,41,.25)}
 .btn-gap{display:flex;flex-direction:column;gap:9px;margin-top:16px}
 .btn-row{display:flex;gap:9px}
-.btn-row .btn{font-size:14px;padding:11px}
+.btn-row .btn{font-size:13px;padding:11px}
 
-/* DETAIL ROWS */
+/* CORRECT STATUS BUTTONS */
+.correct-bar{background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.correct-bar-label{font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+.correct-btns{display:flex;gap:6px;flex-wrap:wrap}
+.correct-btn{padding:5px 12px;border-radius:20px;border:1px solid;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--ff);background:transparent;transition:.15s}
+.cb-available{border-color:rgba(14,203,129,.4);color:#34D399}
+.cb-available:hover{background:rgba(14,203,129,.1)}
+.cb-redeemed{border-color:rgba(240,180,41,.4);color:#FCD34D}
+.cb-redeemed:hover{background:rgba(240,180,41,.1)}
+.cb-used{border-color:rgba(109,95,253,.4);color:var(--vl)}
+.cb-used:hover{background:rgba(109,95,253,.1)}
+.cb-sold{border-color:rgba(59,158,255,.4);color:#93C5FD}
+.cb-sold:hover{background:rgba(59,158,255,.1)}
+.cb-skipped{border-color:var(--bd);color:var(--t2)}
+.cb-skipped:hover{background:rgba(78,90,110,.1)}
+
 .drow{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--bd)}
 .drow:last-child{border-bottom:none}
 .dkey{font-size:12px;color:var(--t2)}
 .dval{font-size:13px;font-weight:700;text-align:right;max-width:60%}
 
-/* DEADLINE BAR */
 .dl-bar{background:var(--bg3);border-radius:10px;padding:12px 14px;margin-bottom:14px}
 .dl-label{font-size:11px;color:var(--t2);margin-bottom:7px;font-weight:600}
 .dl-track{height:5px;background:var(--bd);border-radius:5px;overflow:hidden}
 .dl-fill{height:100%;border-radius:5px;transition:width .5s}
 .dl-nums{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:5px}
 
-/* HISTORY LIST */
 .hist-item{background:var(--bg3);border-radius:9px;padding:10px 12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
 .hist-cycle{font-size:12px;font-weight:700}
 .hist-right{display:flex;align-items:center;gap:8px}
 .hist-date{font-size:11px;color:var(--t3)}
 
-/* LIFECYCLE CONTROL */
 .lc-ctrl{border-radius:12px;padding:14px;margin-bottom:14px;border:1px solid}
 .lc-active-ctrl{background:rgba(14,203,129,.05);border-color:rgba(14,203,129,.2)}
 .lc-paused-ctrl{background:rgba(240,82,82,.05);border-color:rgba(240,82,82,.2)}
@@ -222,34 +216,38 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .lc-btn-resume{border-color:rgba(14,203,129,.4);color:var(--em)}
 .lc-btn-resume:hover{background:rgba(14,203,129,.1)}
 
-/* MINI CARD HEADER */
 .mini-card-hdr{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--bg3);border-radius:12px;margin-bottom:14px}
 .mini-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 
-/* REDEEM FORM HERO */
 .rdm-hero{text-align:center;padding:18px 18px 16px}
 .rdm-em{font-size:46px;margin-bottom:6px}
 .rdm-title{font-size:18px;font-weight:800;margin-bottom:3px}
 .rdm-sub{font-size:13px;color:var(--t2)}
 
-/* EMPTY */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:52px 36px;text-align:center}
 .empty .ei{font-size:42px}
 .empty .et{font-size:17px;font-weight:700}
 .empty .es{font-size:13px;color:var(--t2);line-height:1.6}
 
-/* DIVIDER */
 .div{height:1px;background:var(--bd);margin:14px 0}
 
-/* ANIMATIONS */
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.ani{animation:fadeUp .2s ease forwards}
-
-/* INFO BOX */
 .info-box{border-radius:10px;padding:11px 13px;margin-bottom:14px;font-size:12px;line-height:1.5}
 .info-am{background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.2);color:#FCD34D}
 .info-em{background:rgba(14,203,129,.08);border:1px solid rgba(14,203,129,.2);color:#34D399}
 .info-co{background:rgba(240,82,82,.08);border:1px solid rgba(240,82,82,.2);color:#FCA5A5}
+
+/* EXPORT/IMPORT MENU */
+.menu-overlay{position:fixed;inset:0;z-index:200;display:none;max-width:430px;margin:0 auto}
+.menu-overlay.open{display:block}
+.menu-backdrop{position:absolute;inset:0}
+.menu-box{position:absolute;top:60px;left:18px;background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:6px;min-width:200px;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+.menu-item{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:9px;cursor:pointer;font-size:14px;font-weight:600;transition:.15s;border:none;background:none;color:var(--text);font-family:var(--ff);width:100%;text-align:left}
+.menu-item:hover{background:var(--bg3)}
+.menu-item .mi-ic{font-size:18px;width:28px;text-align:center}
+.menu-sep{height:1px;background:var(--bd);margin:4px 0}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ani{animation:fadeUp .2s ease forwards}
 
 @media(min-width:430px){#app{border-left:1px solid var(--bd);border-right:1px solid var(--bd)}}
 </style>
@@ -258,24 +256,30 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 <div id="app">
   <div id="view"></div>
   <nav id="tabbar">
-    <button class="tab active" data-tab="cards" onclick="switchTab('cards')">
-      <span class="tab-ic">💳</span>Cards
-    </button>
-    <button class="tab" data-tab="available" onclick="switchTab('available')">
-      <span class="tab-ic">🎁</span>Available
-    </button>
-    <button class="tab" data-tab="redeemed" onclick="switchTab('redeemed')">
-      <span class="tab-ic">✅</span>Redeemed
-    </button>
-    <button class="tab" data-tab="upcoming" onclick="switchTab('upcoming')">
-      <span class="tab-ic">📅</span><span class="notif" id="notif-dot" style="display:none"></span>Upcoming
-    </button>
+    <button class="tab active" data-tab="cards" onclick="switchTab('cards')"><span class="tab-ic">💳</span>Cards</button>
+    <button class="tab" data-tab="available" onclick="switchTab('available')"><span class="tab-ic">🎁</span>Available</button>
+    <button class="tab" data-tab="redeemed" onclick="switchTab('redeemed')"><span class="tab-ic">✅</span>Redeemed</button>
+    <button class="tab" data-tab="upcoming" onclick="switchTab('upcoming')"><span class="tab-ic">📅</span><span class="notif" id="notif-dot" style="display:none"></span>Upcoming</button>
   </nav>
 </div>
 
 <div class="overlay" id="ov" onclick="closeSheet(event)">
   <div class="sheet" id="sh"><div class="sheet-handle"></div><div id="shc"></div></div>
 </div>
+
+<!-- LOGO MENU -->
+<div class="menu-overlay" id="logo-menu">
+  <div class="menu-backdrop" onclick="closeMenu()"></div>
+  <div class="menu-box">
+    <button class="menu-item" onclick="exportData()"><span class="mi-ic">📤</span>Export backup</button>
+    <button class="menu-item" onclick="triggerImport()"><span class="mi-ic">📥</span>Import backup</button>
+    <div class="menu-sep"></div>
+    <button class="menu-item" onclick="closeMenu();openAddCard()"><span class="mi-ic">➕</span>Add new card</button>
+    <div class="menu-sep"></div>
+    <div style="padding:8px 13px;font-size:11px;color:var(--t3)">VaultCard v3 — data stored locally</div>
+  </div>
+</div>
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
 
 <script>
 // ── CONSTANTS ─────────────────────────────────────────────────────────────
@@ -300,100 +304,133 @@ const CARD_GRADS=[
 ];
 const CYCLES=[{v:1,l:'Monthly'},{v:3,l:'Quarterly'},{v:6,l:'Half-yearly'},{v:12,l:'Yearly'}];
 const STATUS_LABELS={available:'Available',redeemed:'Redeemed',used:'Used',sold:'Sold',skipped:'Skipped'};
-const LC_LABELS={active:'Active',paused:'Paused',ended:'Ended'};
+const ALL_STATUSES=['available','redeemed','used','sold','skipped'];
 
 // ── HELPERS ───────────────────────────────────────────────────────────────
-const todayStr=()=>new Date().toISOString().split('T')[0];
+const todayStr=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
 const cat=id=>CATS.find(x=>x.id===id)||{e:'⭐',l:id};
 const cycleL=v=>CYCLES.find(x=>x.v===v)?.l||v+'m';
-const fmtD=d=>{if(!d)return'—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})};
-const daysUntil=d=>{if(!d)return null;const n=new Date();n.setHours(0,0,0,0);const t=new Date(d+'T00:00:00');return Math.ceil((t-n)/(864e5))};
+const fmtD=d=>{if(!d)return'—';const[y,m,dy]=d.split('-').map(Number);return new Date(y,m-1,dy).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})};
+const daysUntil=d=>{if(!d)return null;const[y,m,dy]=d.split('-').map(Number);const t=new Date(y,m-1,dy);const n=new Date();n.setHours(0,0,0,0);return Math.ceil((t-n)/(864e5))};
 const hexRgb=h=>{const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h||'#6D5FFD');return r?`${parseInt(r[1],16)},${parseInt(r[2],16)},${parseInt(r[3],16)}`:'109,95,253'};
-const uid=()=>Date.now()+Math.random().toString(36).slice(2,7);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 
-// ── CYCLE MATH (Jan 1 anchor) ─────────────────────────────────────────────
-function cycleStartFor(cycleMonths,refDate){
-  const d=new Date((refDate||todayStr())+'T00:00:00');
-  const yr=d.getFullYear();const m=d.getMonth();
-  if(cycleMonths===1)return`${yr}-${String(m+1).padStart(2,'0')}-01`;
-  if(cycleMonths===3){const q=Math.floor(m/3);return`${yr}-${String(q*3+1).padStart(2,'0')}-01`;}
-  if(cycleMonths===6){return m<6?`${yr}-01-01`:`${yr}-07-01`;}
-  return`${yr}-01-01`;
+// ── CYCLE MATH — TIMEZONE SAFE (pure arithmetic, no toISOString) ──────────
+function padDate(y,m,d){return`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+
+function cycleStartFor(cycleMonths,refDateStr){
+  // Parse ref date (or today) without creating a UTC date
+  const ref=refDateStr||todayStr();
+  const[ry,rm,rd]=ref.split('-').map(Number);
+  const m=rm-1; // zero-based month
+  if(cycleMonths===1) return padDate(ry,rm,1);
+  if(cycleMonths===3){const q=Math.floor(m/3);return padDate(ry,q*3+1,1);}
+  if(cycleMonths===6){return m<6?padDate(ry,1,1):padDate(ry,7,1);}
+  return padDate(ry,1,1); // yearly
 }
+
+// KEY FIX: pure arithmetic — no Date object, no UTC conversion
 function cycleEndFor(cycleMonths,cycleStart){
-  const d=new Date(cycleStart+'T00:00:00');
-  d.setMonth(d.getMonth()+cycleMonths);
-  return d.toISOString().split('T')[0];
+  const[y,m,d]=cycleStart.split('-').map(Number);
+  let totalMonths=(m-1)+cycleMonths;
+  const newYear=y+Math.floor(totalMonths/12);
+  const newMonth=(totalMonths%12)+1;
+  return padDate(newYear,newMonth,d);
 }
-function currentCycleLabel(cycleMonths,cycleStart){
-  const d=new Date(cycleStart+'T00:00:00');
-  const yr=d.getFullYear();const m=d.getMonth();
-  if(cycleMonths===1)return`${d.toLocaleString('default',{month:'short'})} ${yr}`;
-  if(cycleMonths===3){const q=Math.floor(m/3)+1;return`Q${q} ${yr}`;}
-  if(cycleMonths===6){return m===0?`H1 ${yr}`:`H2 ${yr}`;}
-  return`${yr}`;
+
+function cycleLabel(cycleMonths,cycleStart){
+  const[y,m]=cycleStart.split('-').map(Number);
+  if(cycleMonths===1){const mn=new Date(y,m-1,1).toLocaleString('default',{month:'short'});return`${mn} ${y}`;}
+  if(cycleMonths===3){const q=Math.ceil(m/3);return`Q${q} ${y}`;}
+  if(cycleMonths===6){return m<=6?`H1 ${y}`:`H2 ${y}`;}
+  return`${y}`;
 }
-function nextCycleStart(cycleMonths,currentEnd){
-  return currentEnd;
-}
-function ensureCurrentInstance(offer){
-  const cs=cycleStartFor(offer.cycle);
-  const ce=cycleEndFor(offer.cycle,cs);
-  const lbl=currentCycleLabel(offer.cycle,cs);
-  const existing=offer.instances.find(i=>i.cycleStart===cs);
-  if(!existing&&offer.lifecycle==='active'){
-    offer.instances.push({id:uid(),offerId:offer.id,cycleStart:cs,cycleEnd:ce,cycleLabel:lbl,status:'available',redeemDate:null,useByDate:null,notes:''});
+
+// Returns all future cycle starts within 'months' window from today
+function futureCycleStarts(cycleMonths, windowMonths){
+  const starts=[];
+  const today=todayStr();
+  // Current cycle end = first future reset
+  const cs=cycleStartFor(cycleMonths);
+  let nextStart=cycleEndFor(cycleMonths,cs);
+  // Calculate window end
+  const[ty,tm]=today.split('-').map(Number);
+  let wEndM=tm-1+windowMonths;
+  const wEndY=ty+Math.floor(wEndM/12);
+  wEndM=(wEndM%12)+1;
+  const windowEnd=padDate(wEndY,wEndM,1);
+  while(nextStart<windowEnd){
+    starts.push(nextStart);
+    const ce=cycleEndFor(cycleMonths,nextStart);
+    nextStart=ce;
   }
-  return offer.instances.find(i=>i.cycleStart===cs)||null;
+  return starts;
 }
-function getCurrentInstance(offer){
-  const cs=cycleStartFor(offer.cycle);
-  return offer.instances.find(i=>i.cycleStart===cs)||null;
-}
+
 function getNextResetDate(offer){
   const cs=cycleStartFor(offer.cycle);
   return cycleEndFor(offer.cycle,cs);
 }
 
-// ── STATE ─────────────────────────────────────────────────────────────────
-let S={tab:'cards',cards:[],offers:[],_selCat:null,_tradeable:true,_newCardImg:null,_newCardGrad:0,_lcNote:''};
+function getCurrentCycleStart(offer){return cycleStartFor(offer.cycle);}
 
-function save(){try{const d={cards:S.cards,offers:S.offers};localStorage.setItem('vc2',JSON.stringify(d))}catch(e){}}
+function ensureCurrentInstance(offer){
+  if(offer.lifecycle!=='active')return null;
+  const cs=getCurrentCycleStart(offer);
+  const ce=cycleEndFor(offer.cycle,cs);
+  const lbl=cycleLabel(offer.cycle,cs);
+  let inst=offer.instances.find(i=>i.cycleStart===cs);
+  if(!inst){
+    inst={id:uid(),offerId:offer.id,cycleStart:cs,cycleEnd:ce,cycleLabel:lbl,status:'available',redeemDate:null,useByDate:null,notes:''};
+    offer.instances.push(inst);
+  }
+  return inst;
+}
+function getCurrentInstance(offer){
+  const cs=getCurrentCycleStart(offer);
+  return offer.instances.find(i=>i.cycleStart===cs)||null;
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let S={tab:'cards',cards:[],offers:[],_selCat:null,_tradeable:false,_newCardImg:null,_selGrad:0,_offerCardId:null,_upcomingWindow:3};
+
+function save(){try{localStorage.setItem('vc3',JSON.stringify({cards:S.cards,offers:S.offers}))}catch(e){}}
 function load(){
   try{
-    const d=JSON.parse(localStorage.getItem('vc2')||'null');
+    const d=JSON.parse(localStorage.getItem('vc3')||'null');
     if(d&&d.cards){S.cards=d.cards;S.offers=d.offers||[];}
     else seedData();
   }catch(e){seedData();}
   S.offers.forEach(o=>ensureCurrentInstance(o));
 }
+
 function seedData(){
-  const c1id='c1',c2id='c2';
+  const c1='c1',c2='c2';
   S.cards=[
-    {id:c1id,bank:'Bank of Maharashtra',type:'Credit',last4:'4521',first6:'472381',grad:0,image:null},
-    {id:c2id,bank:'HDFC Bank',type:'Debit',last4:'8832',first6:'601200',grad:4,image:null},
+    {id:c1,bank:'Bank of Maharashtra',type:'Credit',last4:'4521',first6:'472381',grad:0,image:null},
+    {id:c2,bank:'HDFC Bank',type:'Debit',last4:'8832',first6:'601200',grad:4,image:null},
   ];
   S.offers=[
-    {id:'o1',cardId:c1id,name:'Spa Session',cat:'spa',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o2',cardId:c1id,name:'Golf Round',cat:'golf',cycle:3,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o3',cardId:c1id,name:'OTT Subscription',cat:'ott',cycle:12,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o4',cardId:c1id,name:'Health Checkup',cat:'health',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o5',cardId:c1id,name:'Gym Membership',cat:'gym',cycle:3,tradeable:false,lifecycle:'paused',lcNote:'Bank paused from Q2 2025',instances:[]},
-    {id:'o6',cardId:c1id,name:'Cab Credits',cat:'cab',cycle:3,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o7',cardId:c2id,name:'Lounge Access',cat:'lounge',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
-    {id:'o8',cardId:c2id,name:'Food Voucher',cat:'food',cycle:1,tradeable:true,lifecycle:'ended',lcNote:'Discontinued from Apr 2025',instances:[]},
-    {id:'o9',cardId:c2id,name:'Shopping Offer',cat:'shopping',cycle:6,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o1',cardId:c1,name:'Spa Session',cat:'spa',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o2',cardId:c1,name:'Golf Round',cat:'golf',cycle:3,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o3',cardId:c1,name:'OTT Subscription',cat:'ott',cycle:12,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o4',cardId:c1,name:'Health Checkup',cat:'health',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o5',cardId:c1,name:'Gym Membership',cat:'gym',cycle:3,tradeable:false,lifecycle:'paused',lcNote:'Bank paused from Q4 2026',instances:[]},
+    {id:'o6',cardId:c1,name:'Cab Credits',cat:'cab',cycle:3,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o7',cardId:c2,name:'Lounge Access',cat:'lounge',cycle:3,tradeable:false,lifecycle:'active',lcNote:'',instances:[]},
+    {id:'o8',cardId:c2,name:'Food Voucher',cat:'food',cycle:1,tradeable:true,lifecycle:'ended',lcNote:'Discontinued Oct 2026',instances:[]},
+    {id:'o9',cardId:c2,name:'Shopping Offer',cat:'shopping',cycle:6,tradeable:true,lifecycle:'active',lcNote:'',instances:[]},
   ];
   S.offers.forEach(o=>ensureCurrentInstance(o));
-  // Simulate one redeemed instance for Golf
+  // Seed: Golf redeemed this cycle
   const golf=S.offers.find(o=>o.id==='o2');
-  const ginst=getCurrentInstance(golf);
-  if(ginst){ginst.status='redeemed';ginst.redeemDate=todayStr();const u=new Date();u.setDate(u.getDate()+30);ginst.useByDate=u.toISOString().split('T')[0];}
+  const gi=getCurrentInstance(golf);
+  if(gi){gi.status='redeemed';gi.redeemDate=todayStr();const u=new Date();u.setDate(u.getDate()+30);gi.useByDate=`${u.getFullYear()}-${String(u.getMonth()+1).padStart(2,'0')}-${String(u.getDate()).padStart(2,'0')}`;}
   save();
 }
 load();
 
-// ── RENDER ROOT ────────────────────────────────────────────────────────────
+// ── RENDER ────────────────────────────────────────────────────────────────
 function render(){
   const v=document.getElementById('view');
   if(S.tab==='cards') v.innerHTML=renderCards();
@@ -402,54 +439,36 @@ function render(){
   else if(S.tab==='upcoming') v.innerHTML=renderUpcoming();
   updateNotifDot();
 }
-
 function updateNotifDot(){
   const dot=document.getElementById('notif-dot');
-  const hasSoon=S.offers.filter(o=>o.lifecycle==='active').some(o=>{
-    const inst=getCurrentInstance(o);
-    if(inst&&inst.status!=='available')return false;
-    const days=daysUntil(getNextResetDate(o));
-    return days!==null&&days<=7&&days>0;
+  const soon=S.offers.filter(o=>o.lifecycle==='active').some(o=>{
+    const d=daysUntil(getNextResetDate(o));return d!==null&&d<=7&&d>0;
   });
-  dot.style.display=hasSoon?'block':'none';
+  dot.style.display=soon?'block':'none';
 }
 
 // ── CARDS TAB ──────────────────────────────────────────────────────────────
 function renderCards(){
   const cardHTMLs=S.cards.map(c=>{
-    const cardOffers=S.offers.filter(o=>o.cardId===c.id);
-    const avail=cardOffers.filter(o=>{
-      if(o.lifecycle!=='active')return false;
-      const inst=getCurrentInstance(o);
-      return inst&&inst.status==='available';
-    }).length;
-    const total=cardOffers.filter(o=>o.lifecycle!=='ended').length;
+    const cos=S.offers.filter(o=>o.cardId===c.id);
+    const avail=cos.filter(o=>{if(o.lifecycle!=='active')return false;const i=getCurrentInstance(o);return i&&i.status==='available';}).length;
+    const total=cos.filter(o=>o.lifecycle!=='ended').length;
     const gr=CARD_GRADS[c.grad||0];
-    const hasImg=!!c.image;
     return`<div class="bcard" style="background:${gr.g}" onclick="openCardDetail('${c.id}')">
-      ${hasImg?`<img class="bcard-img" src="${c.image}" alt=""><div class="bcard-overlay" style="background:linear-gradient(135deg,rgba(0,0,0,.5),rgba(0,0,0,.2))"></div>`:''}
+      ${c.image?`<img class="bcard-img" src="${c.image}" alt=""><div class="bcard-overlay" style="background:linear-gradient(135deg,rgba(0,0,0,.5),rgba(0,0,0,.2))"></div>`:''}
       <div class="bcard-content">
-        <div>
-          <div class="bcard-bank">${c.bank}</div>
-          <div class="bcard-type">${c.type==='Credit'?'💳':'🏦'} ${c.type}</div>
-        </div>
+        <div><div class="bcard-bank">${c.bank}</div><div class="bcard-type">${c.type==='Credit'?'💳':'🏦'} ${c.type}</div></div>
         <div>
           <div class="bcard-digits">●●●● ●●●● ●●●● ${c.last4}</div>
           <div class="bcard-bottom" style="margin-top:9px">
-            <div><div class="bcard-id">Card ref<span>${c.first6}••••${c.last4}</span></div></div>
+            <div class="bcard-id">Card ref<span>${c.first6}••••${c.last4}</span></div>
             <div class="bcard-badge">${avail}/${total} active</div>
           </div>
         </div>
-      </div>
-    </div>`;
+      </div></div>`;
   }).join('');
-
-  const allOffers=S.offers.map(o=>{
-    const c=S.cards.find(x=>x.id===o.cardId);
-    return renderOfferItem(o,c,'all');
-  }).join('');
-
-  return`<div class="topbar"><div class="tbar-title">Vault<em>Card</em></div>
+  return`<div class="topbar">
+    <div class="tbar-title" onclick="toggleMenu()">Vault<em>Card</em> ▾</div>
     <div class="tbar-actions"><button class="ibtn" onclick="openAddCard()">＋</button></div></div>
     <div class="slabel">My Cards</div>
     <div class="card-scroll">${cardHTMLs}<div class="add-bcard" onclick="openAddCard()"><div class="add-bcard-plus">＋</div><div style="font-size:12px;font-weight:600">Add Card</div></div></div>
@@ -458,194 +477,242 @@ function renderCards(){
       <div class="cpill active" data-c="all" onclick="filterAllCat('all')">🗂 All</div>
       ${CATS.map(c=>`<div class="cpill" data-c="${c.id}" onclick="filterAllCat('${c.id}')">${c.e} ${c.l}</div>`).join('')}
     </div>
-    <div class="offer-list ani" id="all-offer-list">${allOffers||emptyHTML('🗂️','No offers yet','Add offers after creating a card.')}</div>
-    <div style="height:16px"></div>`;
+    <div class="offer-list ani" id="all-offer-list">
+      ${S.offers.map(o=>renderOfferItem(o,S.cards.find(c=>c.id===o.cardId),'all')).join('')||emptyHTML('🗂️','No offers yet','Add offers after creating a card.')}
+    </div><div style="height:16px"></div>`;
 }
 
-// ── OFFER ITEM HTML ───────────────────────────────────────────────────────
+// ── OFFER ITEM ─────────────────────────────────────────────────────────────
 function renderOfferItem(o,card,mode){
   const ci=cat(o.cat);
   const gr=CARD_GRADS[card?.grad||0];
   const inst=getCurrentInstance(o);
-
   if(o.lifecycle==='ended'){
     return`<div class="offer-item s-skipped" onclick="openOfferDetail('${o.id}')">
       <div class="offer-ic" style="background:rgba(78,90,110,.12)">${ci.e}</div>
-      <div class="offer-info">
-        <div class="offer-name" style="opacity:.5">${o.name}</div>
+      <div class="offer-info"><div class="offer-name" style="opacity:.5">${o.name}</div>
         <div class="offer-sub">${mode!=='card'?(card?.bank||'')+'  · ':''} ${cycleL(o.cycle)}</div>
-        <div class="offer-ended-banner">🔴 Discontinued${o.lcNote?' — '+o.lcNote:''}</div>
-      </div>
-      <div class="offer-right"><span class="chip chip-ended">Ended</span></div>
-    </div>`;
+        <div class="offer-ended-banner">🔴 Discontinued${o.lcNote?' — '+o.lcNote:''}</div></div>
+      <div class="offer-right"><span class="chip chip-ended">Ended</span></div></div>`;
   }
-
   if(o.lifecycle==='paused'){
     return`<div class="offer-item s-skipped" onclick="openOfferDetail('${o.id}')">
       <div class="offer-ic" style="background:rgba(109,95,253,.12)">${ci.e}</div>
-      <div class="offer-info">
-        <div class="offer-name">${o.name}</div>
+      <div class="offer-info"><div class="offer-name">${o.name}</div>
         <div class="offer-sub">${mode!=='card'?(card?.bank||'')+'  · ':''} ${cycleL(o.cycle)}</div>
-        <div class="offer-paused-banner">⏸ Paused by bank${o.lcNote?' — '+o.lcNote:''}</div>
-      </div>
-      <div class="offer-right"><span class="chip chip-paused">Paused</span></div>
-    </div>`;
+        <div class="offer-paused-banner">⏸ Paused by bank${o.lcNote?' — '+o.lcNote:''}</div></div>
+      <div class="offer-right"><span class="chip chip-paused">Paused</span></div></div>`;
   }
-
   if(!inst)return'';
   const urgent=inst.status==='redeemed'&&daysUntil(inst.useByDate)!==null&&daysUntil(inst.useByDate)<=7;
   const nextReset=getNextResetDate(o);
-  const daysToReset=daysUntil(nextReset);
-
+  const dtr=daysUntil(nextReset);
   return`<div class="offer-item s-${inst.status} ani" onclick="openOfferDetail('${o.id}')">
     <div class="offer-ic" style="background:rgba(${hexRgb(gr.c)},.12)">${ci.e}</div>
     <div class="offer-info">
       <div class="offer-name">${o.name}</div>
-      <div class="offer-sub">
-        ${mode!=='card'?`<span style="color:var(--t3)">${card?.bank||''}</span> ·`:''} 
-        ${cycleL(o.cycle)} · ${currentCycleLabel(o.cycle,cycleStartFor(o.cycle))}
-        ${o.tradeable?' · <span style="color:var(--em);font-size:10px">Tradeable</span>':''}
-      </div>
+      <div class="offer-sub">${mode!=='card'?`<span style="color:var(--t3)">${card?.bank||''}</span> · `:''} ${cycleL(o.cycle)} · ${cycleLabel(o.cycle,cycleStartFor(o.cycle))}${o.tradeable?' · <span style="color:var(--em);font-size:10px">Tradeable</span>':''}</div>
       ${urgent?`<div class="offer-urgent">⚠ Use by ${fmtD(inst.useByDate)}</div>`:''}
     </div>
     <div class="offer-right">
       <span class="chip chip-${inst.status}">${STATUS_LABELS[inst.status]}</span>
-      <span class="offer-date">${instDateHint(inst,nextReset,daysToReset)}</span>
-    </div>
-  </div>`;
+      <span class="offer-date">${instHint(inst,nextReset,dtr)}</span>
+    </div></div>`;
 }
-
-function instDateHint(inst,nextReset,daysToReset){
-  if(inst.status==='available') return daysToReset!==null&&daysToReset<=14?`Resets in ${daysToReset}d`:'';
-  if(inst.status==='redeemed') return inst.useByDate?`Use by ${fmtD(inst.useByDate)}`:'';
-  if(inst.status==='used'||inst.status==='sold') return nextReset?`Next ${fmtD(nextReset)}`:'';
+function instHint(inst,nextReset,dtr){
+  if(inst.status==='available')return dtr!==null&&dtr<=14?`Resets in ${dtr}d`:'';
+  if(inst.status==='redeemed')return inst.useByDate?`Use by ${fmtD(inst.useByDate)}`:'';
+  if(inst.status==='used'||inst.status==='sold')return nextReset?`Next ${fmtD(nextReset)}`:'';
   return'';
 }
 
 // ── AVAILABLE TAB ──────────────────────────────────────────────────────────
 function renderAvailable(){
-  const active=S.offers.filter(o=>o.lifecycle==='active').map(o=>{
-    const inst=getCurrentInstance(o);
-    return inst&&inst.status==='available'?{o,inst}:null;
-  }).filter(Boolean);
-
-  const cats=[...new Set(active.map(x=>x.o.cat))];
+  const items=S.offers.filter(o=>o.lifecycle==='active').filter(o=>{const i=getCurrentInstance(o);return i&&i.status==='available';});
+  const cats=[...new Set(items.map(x=>x.cat))];
   return`<div class="topbar"><div class="tbar-title">Available <em>Offers</em></div></div>
     <div class="cat-scroll" id="av-cats">
       <div class="cpill active" data-c="all" onclick="filterAvailCat('all')">🗂 All</div>
       ${cats.map(id=>{const c=cat(id);return`<div class="cpill" data-c="${id}" onclick="filterAvailCat('${id}')">${c.e} ${c.l}</div>`}).join('')}
     </div>
     <div class="offer-list ani" id="av-list">
-      ${active.map(({o})=>renderOfferItem(o,S.cards.find(c=>c.id===o.cardId),'avail')).join('')||emptyHTML('🎁','All clear!','No available offers right now. Check Upcoming to see when the next ones reset.')}
+      ${items.map(o=>renderOfferItem(o,S.cards.find(c=>c.id===o.cardId),'avail')).join('')||emptyHTML('🎁','All redeemed!','No available offers right now. Check Upcoming for next reset dates.')}
     </div><div style="height:16px"></div>`;
 }
 
 // ── REDEEMED TAB ───────────────────────────────────────────────────────────
 function renderRedeemed(){
-  const nonAvail=S.offers.flatMap(o=>{
+  const items=S.offers.flatMap(o=>{
     const card=S.cards.find(c=>c.id===o.cardId);
     return o.instances.filter(i=>i.status!=='available').map(i=>({o,i,card}));
-  }).sort((a,b)=>new Date(b.i.redeemDate||0)-new Date(a.i.redeemDate||0));
-
+  }).sort((a,b)=>new Date(b.i.redeemDate||b.i.cycleStart)-new Date(a.i.redeemDate||a.i.cycleStart));
   return`<div class="topbar"><div class="tbar-title">Redeemed <em>History</em></div></div>
     <div class="tgl-group">
       <button class="tgl-opt active" data-sf="all" onclick="setRedFilter('all')">All</button>
       <button class="tgl-opt" data-sf="redeemed" onclick="setRedFilter('redeemed')">Redeemed</button>
       <button class="tgl-opt" data-sf="used" onclick="setRedFilter('used')">Used</button>
       <button class="tgl-opt" data-sf="sold" onclick="setRedFilter('sold')">Sold</button>
+      <button class="tgl-opt" data-sf="skipped" onclick="setRedFilter('skipped')">Skipped</button>
     </div>
-    <div class="offer-list ani" id="red-list">
-      ${renderRedeemedItems(nonAvail,'all')}
-    </div><div style="height:16px"></div>`;
+    <div class="offer-list ani" id="red-list">${renderRedItems(items,'all')}</div>
+    <div style="height:16px"></div>`;
 }
-
-function renderRedeemedItems(items,sf){
-  const filtered=sf==='all'?items:items.filter(x=>x.i.status===sf);
-  if(!filtered.length)return emptyHTML('📋','Nothing here','Offers you redeem will appear in this history.');
-  return filtered.map(({o,i,card})=>{
+function renderRedItems(items,sf){
+  const f=sf==='all'?items:items.filter(x=>x.i.status===sf);
+  if(!f.length)return emptyHTML('📋','Nothing here','Offers you redeem appear in this history.');
+  return f.map(({o,i,card})=>{
     const ci=cat(o.cat);
     const urgent=i.status==='redeemed'&&daysUntil(i.useByDate)!==null&&daysUntil(i.useByDate)<=7;
     const nextReset=getNextResetDate(o);
-    return`<div class="offer-item s-${i.status} ani" onclick="openOfferDetail('${o.id}')">
+    return`<div class="offer-item s-${i.status} ani">
       <div class="offer-ic" style="background:rgba(109,95,253,.1)">${ci.e}</div>
-      <div class="offer-info">
+      <div class="offer-info" onclick="openOfferDetail('${o.id}')">
         <div class="offer-name">${o.name}</div>
         <div class="offer-sub"><span style="color:var(--t3)">${card?.bank||''}</span> · ${i.cycleLabel} · ${cycleL(o.cycle)}</div>
         ${urgent?`<div class="offer-urgent">⚠ Use by ${fmtD(i.useByDate)}</div>`:''}
       </div>
       <div class="offer-right">
-        <span class="chip chip-${i.status}">${STATUS_LABELS[i.status]}</span>
+        <span class="chip chip-${i.status}" style="cursor:pointer" onclick="openCorrectStatus('${o.id}','${i.id}')" title="Tap to correct">${STATUS_LABELS[i.status]} ✎</span>
         <span class="offer-date">${i.redeemDate?fmtD(i.redeemDate):''}</span>
         ${(i.status==='used'||i.status==='sold')&&nextReset?`<span class="offer-date" style="color:var(--em)">Next ${fmtD(nextReset)}</span>`:''}
-      </div>
-    </div>`;
+      </div></div>`;
   }).join('');
+}
+
+// ── CORRECT STATUS SHEET ───────────────────────────────────────────────────
+function openCorrectStatus(offerId,instanceId){
+  const o=S.offers.find(x=>x.id===offerId);if(!o)return;
+  const inst=o.instances.find(x=>x.id===instanceId);if(!inst)return;
+  const ci=cat(o.cat);
+  const card=S.cards.find(c=>c.id===o.cardId);
+  openSheet(`
+    <div class="sheet-hdr">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px">${ci.e}</span><div class="sheet-title">Correct Status</div></div>
+      <button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sbody">
+      <div class="mini-card-hdr">
+        <div class="mini-dot" style="background:${CARD_GRADS[card?.grad||0].c}"></div>
+        <div><div style="font-size:13px;font-weight:700">${o.name}</div>
+        <div style="font-size:11px;color:var(--t2)">${card?.bank||''} · ${inst.cycleLabel}</div></div>
+      </div>
+      <div class="correct-bar">
+        <div class="correct-bar-label">Current: <span class="chip chip-${inst.status}">${STATUS_LABELS[inst.status]}</span></div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:10px">Select the correct status below:</div>
+        <div class="correct-btns">
+          ${ALL_STATUSES.filter(s=>s!==inst.status).map(s=>`<button class="correct-btn cb-${s}" onclick="correctInstStatus('${offerId}','${instanceId}','${s}')">${STATUS_LABELS[s]}</button>`).join('')}
+        </div>
+      </div>
+      ${inst.redeemDate?`<div class="fg"><label>Redeem date</label>
+        <input class="finput" type="date" id="corr-date" value="${inst.redeemDate}" max="${todayStr()}">
+        <div class="fhint">Update if the date was entered incorrectly.</div></div>
+        <button class="btn btn-s" style="margin-bottom:10px" onclick="correctInstDate('${offerId}','${instanceId}')">Update date</button>`:''}
+      <div class="info-box info-em">Changes are saved immediately and reflected across all tabs.</div>
+    </div><div style="height:20px"></div>`);
+}
+function correctInstStatus(offerId,instanceId,newStatus){
+  const o=S.offers.find(x=>x.id===offerId);
+  const inst=o.instances.find(x=>x.id===instanceId);
+  inst.status=newStatus;
+  if(newStatus==='available'){inst.redeemDate=null;inst.useByDate=null;inst.notes='';}
+  save();closeSheet();render();
+}
+function correctInstDate(offerId,instanceId){
+  const o=S.offers.find(x=>x.id===offerId);
+  const inst=o.instances.find(x=>x.id===instanceId);
+  const d=document.getElementById('corr-date').value;
+  if(!d)return;
+  inst.redeemDate=d;
+  if(inst.useByDate){
+    const[y,m,dy]=d.split('-').map(Number);
+    const u=new Date(y,m-1,dy+30);
+    inst.useByDate=padDate(u.getFullYear(),u.getMonth()+1,u.getDate());
+  }
+  save();closeSheet();render();
 }
 
 // ── UPCOMING TAB ────────────────────────────────────────────────────────────
 function renderUpcoming(){
-  const now=new Date();now.setHours(0,0,0,0);
-
-  // Active offers: show next reset regardless of current instance status
-  const activeItems=S.offers.filter(o=>o.lifecycle==='active').map(o=>{
-    const card=S.cards.find(c=>c.id===o.cardId);
-    const inst=getCurrentInstance(o);
-    const nextReset=getNextResetDate(o);
-    const days=daysUntil(nextReset);
-    return{o,card,inst,nextReset,days};
-  }).sort((a,b)=>new Date(a.nextReset)-new Date(b.nextReset));
-
+  const w=S._upcomingWindow||3;
+  const activeOffers=S.offers.filter(o=>o.lifecycle==='active');
   const pausedOffers=S.offers.filter(o=>o.lifecycle==='paused');
   const endedOffers=S.offers.filter(o=>o.lifecycle==='ended');
 
-  // Group active by month
+  // Build list: for each active offer, generate all future cycle resets within window
+  const rows=[];
+  activeOffers.forEach(o=>{
+    const card=S.cards.find(c=>c.id===o.cardId);
+    const futureStarts=futureCycleStarts(o.cycle,w);
+    futureStarts.forEach(start=>{
+      const end=cycleEndFor(o.cycle,start);
+      const lbl=cycleLabel(o.cycle,start);
+      const days=daysUntil(start);
+      rows.push({o,card,resetDate:start,cycleEnd:end,lbl,days});
+    });
+    // Also show current cycle if already redeemed/used/sold (it's "not available" — show next reset)
+    const inst=getCurrentInstance(o);
+    if(inst&&inst.status!=='available'){
+      const nextReset=getNextResetDate(o);
+      const days=daysUntil(nextReset);
+      // Already included via futureCycleStarts starting from cycleEnd — skip duplicate
+    }
+  });
+
+  // Sort by reset date
+  rows.sort((a,b)=>new Date(a.resetDate)-new Date(b.resetDate));
+
+  // Group by month
   const byMonth={};
-  activeItems.forEach(item=>{
-    const d=new Date(item.nextReset+'T00:00:00');
-    const key=d.toLocaleString('en-IN',{month:'long',year:'numeric'});
+  rows.forEach(row=>{
+    const[y,m]=row.resetDate.split('-').map(Number);
+    const key=new Date(y,m-1,1).toLocaleString('en-IN',{month:'long',year:'numeric'});
     if(!byMonth[key])byMonth[key]=[];
-    byMonth[key].push(item);
+    byMonth[key].push(row);
   });
 
   const cycleBadge=v=>v===3?'cy-q':v===6?'cy-h':v===12?'cy-y':'cy-m';
   const cycleShort=v=>v===3?'Quarterly':v===6?'Half-yearly':v===12?'Yearly':'Monthly';
 
-  const activeHTML=Object.entries(byMonth).map(([month,items])=>`
+  const tlHTML=Object.entries(byMonth).map(([month,rowList])=>`
     <div class="tl-group">
       <div class="tl-month">${month}</div>
-      ${items.map(({o,card,inst,nextReset,days})=>{
+      ${rowList.map(({o,card,resetDate,lbl,days})=>{
         const ci=cat(o.cat);
-        const instStatus=inst?inst.status:'available';
         const isSoon=days!==null&&days<=7&&days>=0;
-        return`<div class="tl-item${isSoon?' tl-soon':''}">
+        const inst=getCurrentInstance(o);
+        const curStatus=inst?inst.status:'available';
+        // For current cycle row (resetDate = current cycle's end = next reset)
+        const isCurrentNextReset=(resetDate===getNextResetDate(o));
+        return`<div class="tl-item${isSoon?' tl-soon':''}" onclick="openOfferDetail('${o.id}')">
           <div class="tl-ic">${ci.e}</div>
           <div class="tl-info">
             <div class="tl-name">${o.name}</div>
             <div class="tl-card">${card?.bank||''}</div>
-            <div style="margin-top:3px"><span class="chip chip-${instStatus}" style="font-size:9px">${STATUS_LABELS[instStatus]||'Available'} this cycle</span></div>
+            <div class="tl-status">
+              ${isCurrentNextReset&&curStatus!=='available'?`<span class="chip chip-${curStatus}" style="font-size:9px">${STATUS_LABELS[curStatus]} this cycle</span>`:''}
+            </div>
           </div>
           <div class="tl-right">
             <div class="tl-cycle-badge ${cycleBadge(o.cycle)}">${cycleShort(o.cycle)}</div>
-            <div class="tl-days${isSoon?' soon':''}">${days===0?'Resets today!':days===1?'Tomorrow':days<0?'Resetting…':'In '+days+' days'}</div>
-            <div style="font-size:9px;color:var(--t3);margin-top:1px">${fmtD(nextReset)}</div>
+            <div class="tl-days${isSoon?' soon':''}">${days===0?'Resets today!':days===1?'Tomorrow':days<0?'Resetting…':`In ${days}d`}</div>
+            <div style="font-size:9px;color:var(--t3);margin-top:1px">${fmtD(resetDate)}</div>
           </div>
         </div>`;
       }).join('')}
     </div>`).join('');
 
   const pausedHTML=pausedOffers.length?`
-    <div class="slabel" style="padding-top:8px">Paused by bank</div>
+    <div class="slabel" style="padding-top:4px">Paused by bank</div>
     <div style="padding:0 18px">
       ${pausedOffers.map(o=>{const ci=cat(o.cat);const card=S.cards.find(c=>c.id===o.cardId);return`
         <div class="tl-paused-row" onclick="openOfferDetail('${o.id}')">
           <div class="tl-ic">${ci.e}</div>
-          <div class="tl-info"><div class="tl-name">${o.name}</div><div class="tl-card">${card?.bank||''}</div></div>
+          <div class="tl-info"><div class="tl-name">${o.name}</div><div class="tl-card">${card?.bank||''}${o.lcNote?' · '+o.lcNote:''}</div></div>
           <span class="chip chip-paused">Paused</span>
         </div>`}).join('')}
     </div>`:'';
 
   const endedHTML=endedOffers.length?`
-    <div class="slabel" style="padding-top:8px">Discontinued</div>
+    <div class="slabel" style="padding-top:4px">Discontinued</div>
     <div style="padding:0 18px">
       ${endedOffers.map(o=>{const ci=cat(o.cat);const card=S.cards.find(c=>c.id===o.cardId);return`
         <div class="tl-ended-row" onclick="openOfferDetail('${o.id}')">
@@ -656,15 +723,21 @@ function renderUpcoming(){
     </div>`:'';
 
   return`<div class="topbar"><div class="tbar-title">Upcoming <em>Resets</em></div></div>
-    <div class="slabel">Reset schedule — all active offers</div>
+    <div class="tgl-group" style="margin-bottom:8px">
+      <button class="tgl-opt${w===3?' active':''}" onclick="setUpWindow(3)">3 months</button>
+      <button class="tgl-opt${w===6?' active':''}" onclick="setUpWindow(6)">6 months</button>
+      <button class="tgl-opt${w===12?' active':''}" onclick="setUpWindow(12)">1 year</button>
+      <button class="tgl-opt${w===36?' active':''}" onclick="setUpWindow(36)">3 years</button>
+    </div>
     <div class="tl-wrap ani">
-      ${activeHTML||emptyHTML('📅','Nothing active','All your active offers will show their next reset date here.')}
+      ${tlHTML||emptyHTML('📅','Nothing in this window','Add active offers to your cards to track upcoming resets.')}
     </div>
     ${pausedHTML}${endedHTML}
     <div style="height:16px"></div>`;
 }
+function setUpWindow(w){S._upcomingWindow=w;render();}
 
-// ── OFFER DETAIL SHEET ────────────────────────────────────────────────────
+// ── OFFER DETAIL SHEET ─────────────────────────────────────────────────────
 function openOfferDetail(offerId){
   const o=S.offers.find(x=>x.id===offerId);if(!o)return;
   const card=S.cards.find(c=>c.id===o.cardId);
@@ -674,70 +747,53 @@ function openOfferDetail(offerId){
   const days=inst&&inst.status==='redeemed'&&inst.useByDate?daysUntil(inst.useByDate):null;
   const pct=days!==null?Math.max(0,Math.min(100,Math.round((days/30)*100))):null;
   const fillCol=days!==null?(days<=3?'#F05252':days<=7?'#F0B429':'#0ECB81'):'#0ECB81';
-
-  // History of past instances (excluding current cycle)
-  const cs=cycleStartFor(o.cycle);
+  const cs=getCurrentCycleStart(o);
   const pastInsts=o.instances.filter(i=>i.cycleStart!==cs).sort((a,b)=>new Date(b.cycleStart)-new Date(a.cycleStart));
 
-  // Lifecycle control HTML
   const lcHTML=()=>{
-    if(o.lifecycle==='active')return`
-      <div class="lc-ctrl lc-active-ctrl">
-        <div class="lc-label" style="color:var(--em)">● Offer Active</div>
-        <div class="lc-sub">This offer recurs each ${cycleL(o.cycle).toLowerCase()}. Use the options below if the bank changes this.</div>
-        <div class="lc-btns">
-          <button class="lc-btn lc-btn-pause" onclick="promptLC('${offerId}','paused')">⏸ Pause offer</button>
-          <button class="lc-btn lc-btn-end" onclick="promptLC('${offerId}','ended')">🔴 Discontinue</button>
-        </div>
-      </div>`;
-    if(o.lifecycle==='paused')return`
-      <div class="lc-ctrl lc-paused-ctrl">
-        <div class="lc-label" style="color:var(--co)">⏸ Paused by bank${o.lcNote?' — '+o.lcNote:''}</div>
-        <div class="lc-sub">No new cycles will open until you resume. History is preserved.</div>
-        <div class="lc-btns">
-          <button class="lc-btn lc-btn-resume" onclick="setLC('${offerId}','active','')">▶ Resume offer</button>
-          <button class="lc-btn lc-btn-end" onclick="promptLC('${offerId}','ended')">🔴 Discontinue</button>
-        </div>
-      </div>`;
-    return`
-      <div class="lc-ctrl lc-ended-ctrl">
-        <div class="lc-label" style="color:var(--t2)">🔴 Discontinued${o.lcNote?' — '+o.lcNote:''}</div>
-        <div class="lc-sub">This offer has ended. History is preserved below.</div>
-        <div class="lc-btns">
-          <button class="lc-btn lc-btn-resume" onclick="setLC('${offerId}','active','')">▶ Reactivate</button>
-        </div>
-      </div>`;
+    if(o.lifecycle==='active')return`<div class="lc-ctrl lc-active-ctrl">
+      <div class="lc-label" style="color:var(--em)">● Offer Active</div>
+      <div class="lc-sub">Recurs ${cycleL(o.cycle).toLowerCase()}. Use if bank changes this.</div>
+      <div class="lc-btns">
+        <button class="lc-btn lc-btn-pause" onclick="promptLC('${offerId}','paused')">⏸ Pause</button>
+        <button class="lc-btn lc-btn-end" onclick="promptLC('${offerId}','ended')">🔴 Discontinue</button>
+      </div></div>`;
+    if(o.lifecycle==='paused')return`<div class="lc-ctrl lc-paused-ctrl">
+      <div class="lc-label" style="color:var(--co)">⏸ Paused${o.lcNote?' — '+o.lcNote:''}</div>
+      <div class="lc-sub">No new cycles until resumed. History preserved.</div>
+      <div class="lc-btns">
+        <button class="lc-btn lc-btn-resume" onclick="setLC('${offerId}','active','')">▶ Resume</button>
+        <button class="lc-btn lc-btn-end" onclick="promptLC('${offerId}','ended')">🔴 Discontinue</button>
+      </div></div>`;
+    return`<div class="lc-ctrl lc-ended-ctrl">
+      <div class="lc-label" style="color:var(--t2)">🔴 Discontinued${o.lcNote?' — '+o.lcNote:''}</div>
+      <div class="lc-sub">This offer has ended. History preserved below.</div>
+      <div class="lc-btns"><button class="lc-btn lc-btn-resume" onclick="setLC('${offerId}','active','')">▶ Reactivate</button></div>
+    </div>`;
   };
 
   openSheet(`
     <div class="sheet-hdr">
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:26px">${ci.e}</span>
-        <div class="sheet-title">${o.name}</div>
-      </div>
-      <button class="sheet-close" onclick="closeSheet()">✕</button>
-    </div>
+      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:26px">${ci.e}</span><div class="sheet-title">${o.name}</div></div>
+      <button class="sheet-close" onclick="closeSheet()">✕</button></div>
     <div class="sbody">
       <div class="mini-card-hdr">
         <div class="mini-dot" style="background:${CARD_GRADS[card?.grad||0].c}"></div>
         <div><div style="font-size:13px;font-weight:700">${card?.bank||''}</div>
         <div style="font-size:11px;color:var(--t2)">${card?.type||''} · ●●●● ${card?.last4||''}</div></div>
       </div>
-
       ${inst&&inst.status==='redeemed'&&pct!==null?`<div class="dl-bar">
         <div class="dl-label">Time remaining to use this voucher</div>
         <div class="dl-track"><div class="dl-fill" style="width:${pct}%;background:${fillCol}"></div></div>
         <div class="dl-nums"><span>Redeemed</span><span style="font-weight:700;color:${fillCol}">${days} days left</span><span>30 days</span></div>
       </div>`:''}
-
       <div class="drow"><span class="dkey">Category</span><span class="dval">${ci.e} ${ci.l}</span></div>
       <div class="drow"><span class="dkey">Reset cycle</span><span class="dval">${cycleL(o.cycle)}</span></div>
       <div class="drow"><span class="dkey">Transferable</span><span class="dval" style="color:${o.tradeable?'var(--em)':'var(--t2)'}">${o.tradeable?'Yes — can sell/transfer':'No — personal use only'}</span></div>
       <div class="drow"><span class="dkey">Next reset</span><span class="dval" style="color:var(--vl)">${fmtD(nextReset)}</span></div>
-
       ${o.lifecycle==='active'&&inst?`
         <div class="div"></div>
-        <div style="font-size:12px;font-weight:700;color:var(--t2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Current cycle — ${inst.cycleLabel}</div>
+        <div style="font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Current cycle — ${inst.cycleLabel}</div>
         <div class="drow"><span class="dkey">Status</span><span class="chip chip-${inst.status}">${STATUS_LABELS[inst.status]}</span></div>
         ${inst.redeemDate?`<div class="drow"><span class="dkey">Redeemed on</span><span class="dval">${fmtD(inst.redeemDate)}</span></div>`:''}
         ${inst.useByDate?`<div class="drow"><span class="dkey">Use by</span><span class="dval" style="color:${days!==null&&days<=7?'var(--co)':'inherit'}">${fmtD(inst.useByDate)}</span></div>`:''}
@@ -748,135 +804,109 @@ function openOfferDetail(offerId){
             <button class="btn btn-p" onclick="markInstStatus('${offerId}','used')">✅ Mark Used</button>
             ${o.tradeable?`<button class="btn btn-s" onclick="markInstStatus('${offerId}','sold')">💸 Mark Sold</button>`:''}
           </div>`:''}
-          ${inst.status==='redeemed'||inst.status==='available'?`<button class="btn btn-s" onclick="markInstStatus('${offerId}','skipped')" style="font-size:13px">Skip this cycle</button>`:''}
+          ${inst.status==='redeemed'||inst.status==='available'?`<button class="btn btn-s" onclick="markInstStatus('${offerId}','skipped')">Skip this cycle</button>`:''}
+          ${inst.status!=='available'?`<button class="btn btn-am" onclick="openCorrectStatus('${offerId}','${inst.id}')">✎ Correct status</button>`:''}
         </div>`:''}
-
       <div class="div"></div>
       ${lcHTML()}
-
-      ${pastInsts.length?`
-        <div class="div"></div>
-        <div style="font-size:12px;font-weight:700;color:var(--t2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Past cycles</div>
+      ${pastInsts.length?`<div class="div"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Past cycles</div>
         ${pastInsts.map(i=>`<div class="hist-item">
-          <div><div class="hist-cycle">${i.cycleLabel}</div><div style="font-size:11px;color:var(--t3)">${i.redeemDate?'Redeemed '+fmtD(i.redeemDate):'Not redeemed'}</div></div>
-          <div class="hist-right"><span class="chip chip-${i.status}">${STATUS_LABELS[i.status]}</span></div>
-        </div>`).join('')}`:''}
-
+          <div><div class="hist-cycle">${i.cycleLabel}</div>
+          <div style="font-size:11px;color:var(--t3)">${i.redeemDate?'Redeemed '+fmtD(i.redeemDate):'Not redeemed'}</div></div>
+          <div class="hist-right">
+            <span class="chip chip-${i.status}" style="cursor:pointer" onclick="openCorrectStatus('${o.id}','${i.id}')">${STATUS_LABELS[i.status]} ✎</span>
+          </div></div>`).join('')}`:''}
       <div class="div"></div>
       <button class="btn btn-d" onclick="deleteOffer('${offerId}')">Remove offer</button>
-    </div>
-    <div style="height:20px"></div>`);
-}
-
-// ── REDEEM FLOW ────────────────────────────────────────────────────────────
-function openRedeemFlow(offerId){
-  const o=S.offers.find(x=>x.id===offerId);if(!o)return;
-  const ci=cat(o.cat);
-  const card=S.cards.find(c=>c.id===o.cardId);
-  openSheet(`
-    <div class="sheet-hdr"><div class="sheet-title">Redeem Offer</div>
-      <button class="sheet-close" onclick="closeSheet()">✕</button></div>
-    <div class="sbody">
-      <div class="rdm-hero">
-        <div class="rdm-em">${ci.e}</div>
-        <div class="rdm-title">${o.name}</div>
-        <div class="rdm-sub">${card?.bank||''} · ${cycleL(o.cycle)} · ${currentCycleLabel(o.cycle,cycleStartFor(o.cycle))}</div>
-      </div>
-      <div class="fg">
-        <label>Date redeemed from website</label>
-        <input class="finput" type="date" id="rdm-date" value="${todayStr()}" max="${todayStr()}">
-        <div class="fhint">Pre-filled with today. Change if you redeemed earlier.</div>
-      </div>
-      <div class="info-box info-am">⏱ After redeeming on the website, you have <strong>30 days</strong> to use the voucher balance — unless it's a transferable type that can be moved to a wallet.</div>
-      <div class="fg">
-        <label>Notes (optional)</label>
-        <input class="finput" type="text" id="rdm-notes" placeholder="e.g. Code ABC123, added to Paytm wallet…">
-      </div>
-      <button class="btn btn-p" onclick="confirmRedeem('${offerId}')">Confirm Redemption</button>
     </div><div style="height:20px"></div>`);
 }
 
+// ── REDEEM FLOW ─────────────────────────────────────────────────────────────
+function openRedeemFlow(offerId){
+  const o=S.offers.find(x=>x.id===offerId);if(!o)return;
+  const ci=cat(o.cat);const card=S.cards.find(c=>c.id===o.cardId);
+  openSheet(`
+    <div class="sheet-hdr"><div class="sheet-title">Redeem Offer</div><button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sbody">
+      <div class="rdm-hero"><div class="rdm-em">${ci.e}</div>
+        <div class="rdm-title">${o.name}</div>
+        <div class="rdm-sub">${card?.bank||''} · ${cycleL(o.cycle)} · ${cycleLabel(o.cycle,cycleStartFor(o.cycle))}</div>
+      </div>
+      <div class="fg"><label>Date redeemed from website</label>
+        <input class="finput" type="date" id="rdm-date" value="${todayStr()}" max="${todayStr()}">
+        <div class="fhint">Pre-filled with today. Change if you redeemed on a different date.</div>
+      </div>
+      <div class="info-box info-am">⏱ You have <strong>30 days</strong> from this date to use the voucher balance — unless it's a transferable type that can be moved to a wallet for longer.</div>
+      <div class="fg"><label>Notes (optional)</label>
+        <input class="finput" type="text" id="rdm-notes" placeholder="e.g. Code ABC123, added to Paytm wallet…"></div>
+      <button class="btn btn-p" onclick="confirmRedeem('${offerId}')">Confirm Redemption</button>
+    </div><div style="height:20px"></div>`);
+}
 function confirmRedeem(offerId){
-  const dateVal=document.getElementById('rdm-date').value;
+  const dv=document.getElementById('rdm-date').value;
   const notes=document.getElementById('rdm-notes').value;
-  if(!dateVal){alert('Please enter a redeem date');return}
+  if(!dv){alert('Please enter a redeem date');return}
   const o=S.offers.find(x=>x.id===offerId);
   const inst=getCurrentInstance(o);if(!inst)return;
-  const useBy=new Date(dateVal+'T00:00:00');useBy.setDate(useBy.getDate()+30);
-  inst.status='redeemed';inst.redeemDate=dateVal;inst.notes=notes;
-  inst.useByDate=useBy.toISOString().split('T')[0];
+  const[y,m,d]=dv.split('-').map(Number);
+  const useByDate=padDate(y,m,d+30<=new Date(y,m,0).getDate()?m:m%12+1,d+30<=new Date(y,m,0).getDate()?d+30:d+30-new Date(y,m,0).getDate());
+  // Simpler: add 30 days using local Date arithmetic
+  const ubd=new Date(y,m-1,d+30);
+  inst.status='redeemed';inst.redeemDate=dv;inst.notes=notes;
+  inst.useByDate=padDate(ubd.getFullYear(),ubd.getMonth()+1,ubd.getDate());
   save();closeSheet();render();
 }
-
 function markInstStatus(offerId,newStatus){
   const o=S.offers.find(x=>x.id===offerId);if(!o)return;
   const inst=getCurrentInstance(o);if(!inst)return;
   inst.status=newStatus;save();closeSheet();render();
 }
 
-// ── LIFECYCLE CONTROL ──────────────────────────────────────────────────────
+// ── LIFECYCLE ──────────────────────────────────────────────────────────────
 function promptLC(offerId,newLC){
-  const msg=newLC==='paused'?'Reason for pause (optional, e.g. "Bank suspended Q2 2025"):':'Reason for discontinuation (optional):';
-  const note=prompt(msg)||'';
-  setLC(offerId,newLC,note);
+  const msg=newLC==='paused'?'Reason (optional): e.g. "Bank suspended Q4 2026"':'Reason (optional): e.g. "Discontinued Oct 2026"';
+  const note=prompt(msg)||'';setLC(offerId,newLC,note);
 }
 function setLC(offerId,newLC,note){
   const o=S.offers.find(x=>x.id===offerId);if(!o)return;
   o.lifecycle=newLC;o.lcNote=note||'';
-  if(newLC==='active') ensureCurrentInstance(o);
+  if(newLC==='active')ensureCurrentInstance(o);
   save();closeSheet();render();
 }
 
 // ── ADD CARD ───────────────────────────────────────────────────────────────
 let _newImg=null;
 function openAddCard(){
-  _newImg=null;
+  _newImg=null;S._selGrad=0;
   openSheet(`
-    <div class="sheet-hdr"><div class="sheet-title">Add New Card</div>
-      <button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sheet-hdr"><div class="sheet-title">Add New Card</div><button class="sheet-close" onclick="closeSheet()">✕</button></div>
     <div class="sbody">
-      <div class="fg">
-        <label>Card image (optional)</label>
-        <div class="img-up" id="iup">
-          <input type="file" accept="image/*" onchange="handleImg(event)">
-          <div class="iup-ic">🖼️</div><div class="iup-lbl">Tap to upload card photo</div>
-        </div>
-      </div>
-      <div class="fg">
-        <label>Card colour</label>
-        <div class="cpresets">
-          ${CARD_GRADS.map((g,i)=>`<div class="cpreset${i===0?' sel':''}" style="background:${g.g}" data-gi="${i}" onclick="selGrad(this,${i})"></div>`).join('')}
-        </div>
-      </div>
+      <div class="fg"><label>Card image (optional)</label>
+        <div class="img-up" id="iup"><input type="file" accept="image/*" onchange="handleImg(event)">
+          <div class="iup-ic">🖼️</div><div class="iup-lbl">Tap to upload card photo</div></div></div>
+      <div class="fg"><label>Card colour</label>
+        <div class="cpresets">${CARD_GRADS.map((g,i)=>`<div class="cpreset${i===0?' sel':''}" style="background:${g.g}" onclick="selGrad(this,${i})"></div>`).join('')}</div></div>
       <div class="fg"><label>Bank / Issuer name</label><input class="finput" type="text" id="c-bank" placeholder="e.g. HDFC Bank"></div>
       <div class="frow">
         <div class="fg"><label>First 6 digits</label><input class="finput" type="text" id="c-f6" maxlength="6" placeholder="472381" inputmode="numeric"></div>
         <div class="fg"><label>Last 4 digits</label><input class="finput" type="text" id="c-l4" maxlength="4" placeholder="4521" inputmode="numeric"></div>
       </div>
       <div class="fg"><label>Card type</label>
-        <select class="fselect" id="c-type"><option>Credit</option><option>Debit</option><option>Gift</option></select>
-      </div>
+        <select class="fselect" id="c-type"><option>Credit</option><option>Debit</option><option>Gift</option></select></div>
       <button class="btn btn-p" onclick="saveCard()">Save Card</button>
     </div><div style="height:20px"></div>`);
-  window._selGrad=0;
 }
-function handleImg(e){
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=ev=>{_newImg=ev.target.result;
-    const a=document.getElementById('iup');
-    a.innerHTML=`<img src="${_newImg}" alt=""><button class="img-rm" onclick="rmImg(event)">✕</button>`;};
-  r.readAsDataURL(f);
-}
+function handleImg(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{_newImg=ev.target.result;const a=document.getElementById('iup');a.innerHTML=`<img src="${_newImg}" alt=""><button class="img-rm" onclick="rmImg(event)">✕</button>`;};r.readAsDataURL(f);}
 function rmImg(e){e.stopPropagation();_newImg=null;const a=document.getElementById('iup');a.innerHTML=`<input type="file" accept="image/*" onchange="handleImg(event)"><div class="iup-ic">🖼️</div><div class="iup-lbl">Tap to upload card photo</div>`;}
-function selGrad(el,i){document.querySelectorAll('.cpreset').forEach(p=>p.classList.remove('sel'));el.classList.add('sel');window._selGrad=i;}
+function selGrad(el,i){document.querySelectorAll('.cpreset').forEach(p=>p.classList.remove('sel'));el.classList.add('sel');S._selGrad=i;}
 function saveCard(){
   const bank=document.getElementById('c-bank').value.trim();
   const l4=document.getElementById('c-l4').value.trim();
   const f6=document.getElementById('c-f6').value.trim();
   const type=document.getElementById('c-type').value;
   if(!bank||!l4){alert('Bank name and last 4 digits are required');return}
-  S.cards.push({id:uid(),bank,type,last4:l4,first6:f6||'000000',grad:window._selGrad||0,image:_newImg||null});
+  S.cards.push({id:uid(),bank,type,last4:l4,first6:f6||'000000',grad:S._selGrad||0,image:_newImg||null});
   save();closeSheet();render();
 }
 function openCardDetail(cardId){
@@ -884,8 +914,7 @@ function openCardDetail(cardId){
   const offers=S.offers.filter(o=>o.cardId===cardId);
   const avail=offers.filter(o=>{if(o.lifecycle!=='active')return false;const i=getCurrentInstance(o);return i&&i.status==='available';}).length;
   openSheet(`
-    <div class="sheet-hdr"><div class="sheet-title">${card.bank}</div>
-      <button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sheet-hdr"><div class="sheet-title">${card.bank}</div><button class="sheet-close" onclick="closeSheet()">✕</button></div>
     <div class="sbody">
       <div class="mini-card-hdr">
         <div class="mini-dot" style="background:${CARD_GRADS[card.grad||0].c}"></div>
@@ -904,71 +933,45 @@ function openCardDetail(cardId){
 
 // ── ADD OFFER ──────────────────────────────────────────────────────────────
 function openAddOffer(cardId){
-  S._selCat=null;S._tradeable=true;S._offerCardId=cardId;
+  S._selCat=null;S._tradeable=false;S._offerCardId=cardId;
   openSheet(`
-    <div class="sheet-hdr"><div class="sheet-title">Add Offer</div>
-      <button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sheet-hdr"><div class="sheet-title">Add Offer</div><button class="sheet-close" onclick="closeSheet()">✕</button></div>
     <div class="sbody">
-      <div class="fg">
-        <label>Category</label>
-        <div class="cat-grid">
-          ${CATS.map(c=>`<div class="cat-opt" data-cat="${c.id}" onclick="selCat('${c.id}')">
-            <span class="cem">${c.e}</span><span class="cnm">${c.l}</span></div>`).join('')}
-        </div>
-      </div>
-      <div class="fg"><label>Offer name</label>
-        <input class="finput" type="text" id="o-name" placeholder="e.g. Spa Session, OTT Subscription…"></div>
+      <div class="fg"><label>Category</label>
+        <div class="cat-grid">${CATS.map(c=>`<div class="cat-opt" data-cat="${c.id}" onclick="selCat('${c.id}')"><span class="cem">${c.e}</span><span class="cnm">${c.l}</span></div>`).join('')}</div></div>
+      <div class="fg"><label>Offer name</label><input class="finput" type="text" id="o-name" placeholder="e.g. Spa Session…"></div>
       <div class="fg"><label>Reset cycle</label>
         <select class="fselect" id="o-cycle" onchange="updateNextReset()">
           ${CYCLES.map(c=>`<option value="${c.v}">${c.l}</option>`).join('')}
-        </select>
-      </div>
-      <div class="fg"><label>Next reset date</label>
+        </select></div>
+      <div class="fg"><label>Next reset date (auto-calculated)</label>
         <input class="finput" type="date" id="o-reset" value="${cycleEndFor(3,cycleStartFor(3))}">
-        <div class="fhint">Auto-calculated from cycle. Edit if bank has a different schedule.</div>
-      </div>
+        <div class="fhint">Calculated from Jan 1 anchor. Edit if your bank uses a different schedule.</div></div>
       <div class="fg"><label>Transferable / Tradeable</label>
         <div class="tgl-group" style="margin:0">
           <button class="tgl-opt active" id="td-no" onclick="setTrd(false)">Personal only</button>
           <button class="tgl-opt" id="td-yes" onclick="setTrd(true)">Can sell / transfer</button>
-        </div>
-      </div>
+        </div></div>
       <button class="btn btn-p" onclick="saveOffer()">Add Offer</button>
     </div><div style="height:20px"></div>`);
-  S._tradeable=false;
 }
-function selCat(id){
-  S._selCat=id;
-  document.querySelectorAll('.cat-opt').forEach(el=>el.classList.toggle('sel',el.dataset.cat===id));
-  const ci=cat(id);
-  const ni=document.getElementById('o-name');if(!ni.value)ni.value=ci.l+' Voucher';
-}
-function setTrd(v){
-  S._tradeable=v;
-  document.getElementById('td-yes').classList.toggle('active',v);
-  document.getElementById('td-no').classList.toggle('active',!v);
-}
-function updateNextReset(){
-  const cyc=parseInt(document.getElementById('o-cycle').value);
-  document.getElementById('o-reset').value=cycleEndFor(cyc,cycleStartFor(cyc));
-}
+function selCat(id){S._selCat=id;document.querySelectorAll('.cat-opt').forEach(el=>el.classList.toggle('sel',el.dataset.cat===id));const ci=cat(id);const ni=document.getElementById('o-name');if(!ni.value)ni.value=ci.l+' Voucher';}
+function setTrd(v){S._tradeable=v;document.getElementById('td-yes').classList.toggle('active',v);document.getElementById('td-no').classList.toggle('active',!v);}
+function updateNextReset(){const cy=parseInt(document.getElementById('o-cycle').value);document.getElementById('o-reset').value=cycleEndFor(cy,cycleStartFor(cy));}
 function saveOffer(){
   const name=document.getElementById('o-name').value.trim();
   const cycle=parseInt(document.getElementById('o-cycle').value);
-  const reset=document.getElementById('o-reset').value;
   if(!name){alert('Please enter an offer name');return}
   if(!S._selCat){alert('Please select a category');return}
   const o={id:uid(),cardId:S._offerCardId,name,cat:S._selCat,cycle,tradeable:!!S._tradeable,lifecycle:'active',lcNote:'',instances:[]};
-  ensureCurrentInstance(o);
-  S.offers.push(o);
-  save();closeSheet();render();
+  ensureCurrentInstance(o);S.offers.push(o);save();closeSheet();render();
 }
 
 // ── FILTERS ────────────────────────────────────────────────────────────────
 function filterAllCat(c){
   document.querySelectorAll('#all-cats .cpill').forEach(p=>p.classList.toggle('active',p.dataset.c===c));
-  const all=S.offers.filter(o=>c==='all'||o.cat===c);
-  document.getElementById('all-offer-list').innerHTML=all.map(o=>renderOfferItem(o,S.cards.find(x=>x.id===o.cardId),'all')).join('')||emptyHTML('🗂️','No offers in this category','');
+  const items=S.offers.filter(o=>c==='all'||o.cat===c);
+  document.getElementById('all-offer-list').innerHTML=items.map(o=>renderOfferItem(o,S.cards.find(x=>x.id===o.cardId),'all')).join('')||emptyHTML('🗂️','No offers in this category','');
 }
 function filterAvailCat(c){
   document.querySelectorAll('#av-cats .cpill').forEach(p=>p.classList.toggle('active',p.dataset.c===c));
@@ -977,29 +980,55 @@ function filterAvailCat(c){
 }
 function setRedFilter(sf){
   document.querySelectorAll('.tgl-opt').forEach(b=>b.classList.toggle('active',b.dataset.sf===sf));
-  const all=S.offers.flatMap(o=>{const card=S.cards.find(c=>c.id===o.cardId);return o.instances.filter(i=>i.status!=='available').map(i=>({o,i,card}));}).sort((a,b)=>new Date(b.i.redeemDate||0)-new Date(a.i.redeemDate||0));
-  document.getElementById('red-list').innerHTML=renderRedeemedItems(all,sf);
+  const items=S.offers.flatMap(o=>{const card=S.cards.find(c=>c.id===o.cardId);return o.instances.filter(i=>i.status!=='available').map(i=>({o,i,card}));}).sort((a,b)=>new Date(b.i.redeemDate||b.i.cycleStart)-new Date(a.i.redeemDate||a.i.cycleStart));
+  document.getElementById('red-list').innerHTML=renderRedItems(items,sf);
 }
 
 // ── DELETE ─────────────────────────────────────────────────────────────────
-function deleteOffer(id){if(!confirm('Remove this offer and its history?'))return;S.offers=S.offers.filter(o=>o.id!==id);save();closeSheet();render();}
-function deleteCard(id){if(!confirm('Remove card and ALL its offers?'))return;S.cards=S.cards.filter(c=>c.id!==id);S.offers=S.offers.filter(o=>o.cardId!==id);save();closeSheet();render();}
+function deleteOffer(id){if(!confirm('Remove this offer and all its history?'))return;S.offers=S.offers.filter(o=>o.id!==id);save();closeSheet();render();}
+function deleteCard(id){if(!confirm('Remove this card and ALL its offers?'))return;S.cards=S.cards.filter(c=>c.id!==id);S.offers=S.offers.filter(o=>o.cardId!==id);save();closeSheet();render();}
 
-// ── SHEET ──────────────────────────────────────────────────────────────────
-function openSheet(html){document.getElementById('shc').innerHTML=html;document.getElementById('ov').classList.add('open');}
-function closeSheet(e){if(!e||e.target===document.getElementById('ov'))document.getElementById('ov').classList.remove('open');}
+// ── EXPORT / IMPORT ────────────────────────────────────────────────────────
+function toggleMenu(){document.getElementById('logo-menu').classList.toggle('open');}
+function closeMenu(){document.getElementById('logo-menu').classList.remove('open');}
 
-// ── TAB SWITCH ─────────────────────────────────────────────────────────────
-function switchTab(tab){
-  S.tab=tab;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
-  render();
+function exportData(){
+  closeMenu();
+  const data={version:3,exportedAt:new Date().toISOString(),cards:S.cards,offers:S.offers};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const d=new Date();
+  a.href=url;a.download=`vaultcard-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  a.click();URL.revokeObjectURL(url);
+}
+function triggerImport(){closeMenu();document.getElementById('import-file').click();}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.cards||!data.offers){alert('Invalid backup file');return}
+      if(!confirm(`This will replace all your current data with the backup from ${data.exportedAt?new Date(data.exportedAt).toLocaleDateString('en-IN'):'unknown date'}.\n\nContinue?`))return;
+      S.cards=data.cards;S.offers=data.offers;
+      S.offers.forEach(o=>ensureCurrentInstance(o));
+      save();render();
+      alert('✅ Data restored successfully!');
+    }catch(err){alert('Could not read backup file. Make sure it is a valid VaultCard backup.');}
+  };
+  r.readAsText(file);
+  e.target.value='';
 }
 
-// ── UTIL ───────────────────────────────────────────────────────────────────
+// ── SHEET / NAV ────────────────────────────────────────────────────────────
+function openSheet(html){document.getElementById('shc').innerHTML=html;document.getElementById('ov').classList.add('open');}
+function closeSheet(e){if(!e||e.target===document.getElementById('ov'))document.getElementById('ov').classList.remove('open');}
+function switchTab(tab){S.tab=tab;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));closeMenu();render();}
 function emptyHTML(ic,t,s){return`<div class="empty"><div class="ei">${ic}</div><div class="et">${t}</div><div class="es">${s}</div></div>`;}
 
-// ── INIT ───────────────────────────────────────────────────────────────────
+function padDate(y,m,d){return`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+
 render();
 </script>
 </body>
