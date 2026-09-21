@@ -39,44 +39,24 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
 .slabel{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.08em;padding:18px 18px 8px;text-transform:uppercase}
 
-/* ── STACKED CARD DECK ─────────────────────────────────────────────── */
-.deck-wrap{padding:0 18px 24px;position:relative}
-/* The stack container — height expands when a card is active */
-.deck{position:relative;width:100%;transition:height .4s cubic-bezier(.32,.72,0,1)}
-/* Each card wrapper positions it in the stack */
-.deck-slot{position:absolute;left:0;right:0;transition:transform .38s cubic-bezier(.32,.72,0,1),
-           box-shadow .38s ease,z-index 0s,opacity .3s ease;transform-origin:center top;will-change:transform}
-.deck-slot.is-active{z-index:10}
-/* The actual card visual */
-.bcard{width:100%;height:170px;border-radius:18px;padding:18px;display:flex;flex-direction:column;
-       justify-content:space-between;cursor:pointer;position:relative;overflow:hidden;
-       border:1px solid rgba(255,255,255,.07);transition:border-color .2s}
+/* ── HORIZONTAL CARD SCROLL ─────────────────────────────────────────── */
+.card-scroll{display:flex;gap:14px;padding:2px 18px 18px;overflow-x:auto;scrollbar-width:none}
+.card-scroll::-webkit-scrollbar{display:none}
+.bcard{min-width:295px;height:170px;border-radius:18px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;position:relative;overflow:hidden;flex-shrink:0;transition:transform .2s;border:1px solid rgba(255,255,255,.06)}
+.bcard:active{transform:scale(.98)}
 .bcard-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:17px}
 .bcard-overlay{position:absolute;inset:0;border-radius:17px}
 .bcard-content{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;justify-content:space-between}
 .bcard-bank{font-size:12px;font-weight:700;opacity:.8;letter-spacing:.04em}
-.bcard-type{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.12);
-            backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);border-radius:20px;
-            padding:2px 9px;font-size:10px;font-weight:700;margin-top:3px;width:fit-content}
+.bcard-type{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;margin-top:3px;width:fit-content}
 .bcard-digits{font-size:16px;font-weight:700;letter-spacing:.14em}
 .bcard-bottom{display:flex;justify-content:space-between;align-items:flex-end}
 .bcard-id{font-size:9px;opacity:.55;text-transform:uppercase;letter-spacing:.06em}
 .bcard-id span{display:block;font-size:12px;font-weight:700;opacity:1;margin-top:2px}
 .bcard-badge{background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700}
-/* Collapsed peek strip shown for non-active cards */
-.bcard-peek{height:44px;border-radius:18px;padding:0 18px;display:flex;align-items:center;
-            justify-content:space-between;cursor:pointer;position:relative;overflow:hidden;
-            border:1px solid rgba(255,255,255,.06);transition:opacity .2s}
-.bcard-peek-bank{font-size:13px;font-weight:700;opacity:.75}
-.bcard-peek-right{display:flex;align-items:center;gap:8px}
-.bcard-peek-digits{font-size:11px;opacity:.45;letter-spacing:.1em}
-.bcard-peek-badge{background:rgba(255,255,255,.12);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700}
-/* Add card button below stack */
-.add-bcard{width:100%;height:52px;border-radius:14px;border:2px dashed var(--bd);
-           display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;
-           color:var(--t3);transition:.2s;margin-top:10px;font-size:13px;font-weight:600}
+.add-bcard{min-width:295px;height:170px;border-radius:18px;border:2px dashed var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--t3);flex-shrink:0;transition:.2s}
 .add-bcard:hover{border-color:var(--v);color:var(--vl);background:rgba(109,95,253,.04)}
-.add-bcard-plus{font-size:20px}
+.add-bcard-plus{font-size:28px}
 
 .offer-list{padding:0 18px;display:flex;flex-direction:column;gap:8px}
 .offer-item{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
@@ -413,18 +393,54 @@ function getCurrentInstance(offer){
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────────
+// ── CLOUD CONFIG — set these two values ───────────────────────────────────
+const API_URL = 'https://script.google.com/macros/s/AKfycbzhKZ663U9vCjpLkrLrhi0OfVB5oP_w-MSrrlVk1mma02oe9yDh7uKM3aeePtvUrTHx/exec';
+const API_PIN = '0409'; // must match your Apps Script property
+  
 let S={tab:'cards',cards:[],offers:[],_selCat:null,_tradeable:false,_newCardImg:null,_selGrad:0,_offerCardId:null,_upcomingWindow:3};
 
-function save(){try{localStorage.setItem('vc3',JSON.stringify({cards:S.cards,offers:S.offers}))}catch(e){}}
-function load(){
-  try{
-    const d=JSON.parse(localStorage.getItem('vc3')||'null');
-    if(d&&d.cards){S.cards=d.cards;S.offers=d.offers||[];}
-    // No seed data — starts empty for new users
-  }catch(e){}
-  S.offers.forEach(o=>ensureCurrentInstance(o));
+// ── LOCAL SAVE (instant, always) ──────────────────────────────────────────
+function save() {
+  try { localStorage.setItem('vc3', JSON.stringify({ cards: S.cards, offers: S.offers })); } catch(e) {}
+  cloudSave(); // fire and forget
 }
-load();
+
+// ── CLOUD SAVE ─────────────────────────────────────────────────────────────
+async function cloudSave() {
+  try {
+    await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ pin: API_PIN, action: 'SAVE', payload: { cards: S.cards, offers: S.offers } })
+    });
+  } catch(e) { /* silent fail — local copy is safe */ }
+}
+
+// ── LOAD — tries cloud first, falls back to local ─────────────────────────
+async function load() {
+  // Always load local immediately so app opens fast
+  try {
+    const local = JSON.parse(localStorage.getItem('vc3') || 'null');
+    if (local && local.cards) { S.cards = local.cards; S.offers = local.offers || []; }
+  } catch(e) {}
+
+  // Then try cloud in background
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ pin: API_PIN, action: 'LOAD', payload: {} })
+    });
+    const json = await res.json();
+    if (json.ok && json.data) {
+      S.cards = json.data.cards || [];
+      S.offers = json.data.offers || [];
+      // Update local cache with cloud data
+      localStorage.setItem('vc3', JSON.stringify({ cards: S.cards, offers: S.offers }));
+    }
+  } catch(e) { /* offline — local data is already loaded */ }
+
+  S.offers.forEach(o => ensureCurrentInstance(o));
+  render();
+}
 
 // ── RENDER ────────────────────────────────────────────────────────────────
 function render(){
