@@ -459,85 +459,35 @@ function updateNotifDot(){
   dot.style.display=soon?'block':'none';
 }
 
-// ── SOUND ENGINE (Web Audio API — no external files needed) ──────────────
-let _actx=null;
-function getACtx(){
-  if(!_actx)_actx=new(window.AudioContext||window.webkitAudioContext)();
-  if(_actx.state==='suspended')_actx.resume();
-  return _actx;
-}
-// Soft card swoosh — layered noise burst + pitch sweep
-function soundSwoosh(){
-  try{
-    const ctx=getACtx();const t=ctx.currentTime;
-    // Noise layer (card rustle)
-    const buf=ctx.createBuffer(1,ctx.sampleRate*0.18,ctx.sampleRate);
-    const d=buf.getChannelData(0);
-    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.8);
-    const src=ctx.createBufferSource();src.buffer=buf;
-    const flt=ctx.createBiquadFilter();flt.type='bandpass';flt.frequency.setValueAtTime(2200,t);flt.frequency.exponentialRampToValueAtTime(800,t+0.18);flt.Q.value=0.8;
-    const gain=ctx.createGain();gain.gain.setValueAtTime(0.22,t);gain.gain.exponentialRampToValueAtTime(0.001,t+0.18);
-    src.connect(flt);flt.connect(gain);gain.connect(ctx.destination);src.start(t);src.stop(t+0.18);
-    // Tone sweep (card lift)
-    const osc=ctx.createOscillator();osc.type='sine';
-    osc.frequency.setValueAtTime(180,t);osc.frequency.exponentialRampToValueAtTime(320,t+0.12);
-    const og=ctx.createGain();og.gain.setValueAtTime(0.06,t);og.gain.exponentialRampToValueAtTime(0.001,t+0.14);
-    osc.connect(og);og.connect(ctx.destination);osc.start(t);osc.stop(t+0.14);
-  }catch(e){}
-}
-// Softer settle sound — card collapsing back
-function soundSettle(){
-  try{
-    const ctx=getACtx();const t=ctx.currentTime;
-    const buf=ctx.createBuffer(1,ctx.sampleRate*0.12,ctx.sampleRate);
-    const d=buf.getChannelData(0);
-    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2.2);
-    const src=ctx.createBufferSource();src.buffer=buf;
-    const flt=ctx.createBiquadFilter();flt.type='bandpass';flt.frequency.setValueAtTime(1000,t);flt.frequency.exponentialRampToValueAtTime(400,t+0.12);flt.Q.value=1.2;
-    const gain=ctx.createGain();gain.gain.setValueAtTime(0.14,t);gain.gain.exponentialRampToValueAtTime(0.001,t+0.12);
-    src.connect(flt);flt.connect(gain);gain.connect(ctx.destination);src.start(t);src.stop(t+0.12);
-    const osc=ctx.createOscillator();osc.type='sine';
-    osc.frequency.setValueAtTime(260,t);osc.frequency.exponentialRampToValueAtTime(140,t+0.1);
-    const og=ctx.createGain();og.gain.setValueAtTime(0.04,t);og.gain.exponentialRampToValueAtTime(0.001,t+0.1);
-    osc.connect(og);og.connect(ctx.destination);osc.start(t);osc.stop(t+0.1);
-  }catch(e){}
-}
-// Crisp tap for sheet open
-function soundTap(){
-  try{
-    const ctx=getACtx();const t=ctx.currentTime;
-    const osc=ctx.createOscillator();osc.type='sine';osc.frequency.setValueAtTime(440,t);osc.frequency.exponentialRampToValueAtTime(220,t+0.06);
-    const g=ctx.createGain();g.gain.setValueAtTime(0.05,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.07);
-    osc.connect(g);g.connect(ctx.destination);osc.start(t);osc.stop(t+0.07);
-  }catch(e){}
-}
-// Success chime for redeem confirm
-function soundSuccess(){
-  try{
-    const ctx=getACtx();
-    [[523,0],[659,0.1],[784,0.2]].forEach(([freq,delay])=>{
-      const t=ctx.currentTime+delay;
-      const osc=ctx.createOscillator();osc.type='triangle';osc.frequency.value=freq;
-      const g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.08,t+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+0.25);
-      osc.connect(g);g.connect(ctx.destination);osc.start(t);osc.stop(t+0.25);
-    });
-  }catch(e){}
-}
-
-// ── DECK STATE ─────────────────────────────────────────────────────────────
-let _activeCardIdx = 0; // which card is expanded
 
 // ── CARDS TAB ──────────────────────────────────────────────────────────────
 function renderCards(){
-  if(_activeCardIdx>=S.cards.length)_activeCardIdx=0;
+// ── CARDS TAB ──────────────────────────────────────────────────────────────
+function renderCards(){
+  const cardHTMLs=S.cards.map(c=>{
+    const cos=S.offers.filter(o=>o.cardId===c.id);
+    const avail=cos.filter(o=>{if(o.lifecycle!=='active')return false;const i=getCurrentInstance(o);return i&&i.status==='available';}).length;
+    const total=cos.filter(o=>o.lifecycle!=='ended').length;
+    const gr=CARD_GRADS[c.grad||0];
+    return`<div class="bcard" style="background:${gr.g}" onclick="openCardDetail('${c.id}')">
+      ${c.image?`<img class="bcard-img" src="${c.image}" alt=""><div class="bcard-overlay" style="background:linear-gradient(135deg,rgba(0,0,0,.5),rgba(0,0,0,.2))"></div>`:''}
+      <div class="bcard-content">
+        <div><div class="bcard-bank">${c.bank}</div><div class="bcard-type">${c.type==='Credit'?'💳':'🏦'} ${c.type}</div></div>
+        <div>
+          <div class="bcard-digits">●●●● ●●●● ●●●● ${c.last4}</div>
+          <div class="bcard-bottom" style="margin-top:9px">
+            <div class="bcard-id">Card ref<span>${c.first6}••••${c.last4}</span></div>
+            <div class="bcard-badge">${avail}/${total} active</div>
+          </div>
+        </div>
+      </div></div>`;
+  }).join('');
   return`<div class="topbar">
     <div class="tbar-title" onclick="toggleMenu()">Vault<em>Card</em> ▾</div>
     <div class="tbar-actions"><button class="ibtn" onclick="openAddCard()">＋</button></div></div>
     <div class="slabel">My Cards</div>
-    <div class="deck-wrap">
-      <div class="deck" id="card-deck">${buildDeckHTML()}</div>
-      <div class="add-bcard" onclick="openAddCard()"><div class="add-bcard-plus">＋</div>Add New Card</div>
-    </div>
+        <div class="card-scroll">${cardHTMLs}<div class="add-bcard" onclick="openAddCard()"><div class="add-bcard-plus">＋</div><div style="font-size:12px;font-weight:600">Add Card</div></div></div>
+
     <div class="slabel">All Offers</div>
     <div class="cat-scroll" id="all-cats">
       <div class="cpill active" data-c="all" onclick="filterAllCat('all')">🗂 All</div>
@@ -548,109 +498,6 @@ function renderCards(){
     </div><div style="height:16px"></div>`;
 }
 
-function buildDeckHTML(){
-  if(!S.cards.length)return emptyHTML('💳','No cards yet','Tap + to add your first card.');
-  const n=S.cards.length;
-  const CARD_H=170;     // expanded card height px
-  const PEEK_H=44;      // collapsed peek strip height px
-  const GAP=10;         // gap between peek strips
-  const STACK_OFFSET=6; // how many px each bg card peeks below
-
-  // Total deck height = active card + peeks below + bg card hints above
-  const below=(n-1-_activeCardIdx);
-  const above=_activeCardIdx;
-  const deckH=CARD_H+(below*(PEEK_H+GAP))+(above>0?STACK_OFFSET*Math.min(above,2):0);
-
-  let html=`<div id="deck-inner" style="position:relative;height:${deckH}px;transition:height .4s cubic-bezier(.32,.72,0,1)">`;
-
-  S.cards.forEach((c,i)=>{
-    const cos=S.offers.filter(o=>o.cardId===c.id);
-    const avail=cos.filter(o=>{if(o.lifecycle!=='active')return false;const inst=getCurrentInstance(o);return inst&&inst.status==='available';}).length;
-    const total=cos.filter(o=>o.lifecycle!=='ended').length;
-    const gr=CARD_GRADS[c.grad||0];
-    const isActive=(i===_activeCardIdx);
-    const isAbove=(i<_activeCardIdx);
-    const isBelow=(i>_activeCardIdx);
-
-    // Calculate vertical position
-    let top;
-    if(isActive){
-      // Active card sits at top, with small offset for each card above it
-      top=Math.min(above,2)*STACK_OFFSET;
-    } else if(isAbove){
-      // Cards above peek from the top as a fanned stack
-      const fromTop=i; // 0 = topmost bg card
-      top=fromTop*STACK_OFFSET;
-    } else {
-      // Cards below fan out beneath the active card
-      const fromActive=i-_activeCardIdx;
-      top=Math.min(above,2)*STACK_OFFSET+CARD_H+(fromActive-1)*(PEEK_H+GAP)+GAP;
-    }
-
-    const scale=isActive?1:isAbove?1-((_activeCardIdx-i)*0.015):1;
-    const shadow=isActive
-      ?'0 20px 60px rgba(0,0,0,.55),0 8px 20px rgba(0,0,0,.4)'
-      :isBelow?'0 4px 16px rgba(0,0,0,.3)':'none';
-    const zIdx=isActive?10:isAbove?(_activeCardIdx-i):0;
-    const opacity=isAbove&&(_activeCardIdx-i)>2?0:1;
-
-    if(isActive){
-      html+=`<div class="deck-slot is-active" data-idx="${i}"
-               style="top:${top}px;z-index:${zIdx};transform:scale(${scale});box-shadow:${shadow};opacity:${opacity}">
-        <div class="bcard" style="background:${gr.g}" onclick="deckTap(${i})">
-          ${c.image?`<img class="bcard-img" src="${c.image}" alt=""><div class="bcard-overlay" style="background:linear-gradient(135deg,rgba(0,0,0,.5),rgba(0,0,0,.15))"></div>`:''}
-          <div class="bcard-content">
-            <div><div class="bcard-bank">${c.bank}</div><div class="bcard-type">${c.type==='Credit'?'💳':'🏦'} ${c.type}</div></div>
-            <div>
-              <div class="bcard-digits">●●●● ●●●● ●●●● ${c.last4}</div>
-              <div class="bcard-bottom" style="margin-top:9px">
-                <div class="bcard-id">Card ref<span>${c.first6}••••${c.last4}</span></div>
-                <div class="bcard-badge">${avail}/${total} active</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;padding:10px 0 0">
-          <button style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--bd);background:var(--bg3);color:var(--t2);font-size:12px;font-weight:700;font-family:var(--ff);cursor:pointer" onclick="soundTap();openCardDetail('${c.id}')">View Offers</button>
-          <button style="padding:9px 14px;border-radius:10px;border:1px solid var(--bd);background:var(--bg3);color:var(--t2);font-size:16px;cursor:pointer" onclick="soundTap();openCardDetail('${c.id}')">›</button>
-        </div>
-      </div>`;
-    } else {
-      // Peek strip for non-active cards
-      html+=`<div class="deck-slot" data-idx="${i}"
-               style="top:${top}px;z-index:${zIdx};transform:scale(${scale});box-shadow:${shadow};opacity:${opacity}">
-        <div class="bcard-peek" style="background:${gr.g}" onclick="deckTap(${i})">
-          ${c.image?`<img class="bcard-img" src="${c.image}" alt="" style="height:44px;border-radius:17px;opacity:.4"><div class="bcard-overlay" style="background:rgba(0,0,0,.45)"></div>`:''}
-          <div class="bcard-peek-bank" style="position:relative;z-index:1">${c.bank}</div>
-          <div class="bcard-peek-right" style="position:relative;z-index:1">
-            <span class="bcard-peek-digits">●●●● ${c.last4}</span>
-            <span class="bcard-peek-badge">${avail} avail</span>
-          </div>
-        </div>
-      </div>`;
-    }
-  });
-
-  html+=`</div>`;
-  return html;
-}
-
-function deckTap(idx){
-  if(idx===_activeCardIdx){
-    // Already active — do nothing on card body tap (buttons handle action)
-    return;
-  }
-  soundSwoosh();
-  _activeCardIdx=idx;
-  // Re-render just the deck inner without full page redraw
-  const deck=document.getElementById('deck-inner');
-  if(deck){
-    const wrap=deck.parentElement;
-    wrap.innerHTML=buildDeckHTML();
-  } else {
-    render();
-  }
-}
 
 // ── OFFER ITEM ─────────────────────────────────────────────────────────────
 function renderOfferItem(o,card,mode){
