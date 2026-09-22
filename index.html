@@ -277,7 +277,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     <div class="menu-sep"></div>
     <button class="menu-item" onclick="closeMenu();openAddCard()"><span class="mi-ic">➕</span>Add new card</button>
     <div class="menu-sep"></div>
-    <div style="padding:8px 13px;font-size:11px;color:var(--t3)">VaultCard v3 — data stored locally</div>
+    <div style="padding:8px 13px;font-size:11px;color:var(--t3)">VaultCard — synced to Google Sheets ☁️</div>
   </div>
 </div>
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
@@ -393,53 +393,55 @@ function getCurrentInstance(offer){
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────────
-// ── CLOUD CONFIG — set these two values ───────────────────────────────────
+// ── CLOUD CONFIG ───────────────────────────────────────────────────────────
 const API_URL = 'https://script.google.com/macros/s/AKfycbzhKZ663U9vCjpLkrLrhi0OfVB5oP_w-MSrrlVk1mma02oe9yDh7uKM3aeePtvUrTHx/exec';
-const API_PIN = '0409'; // must match your Apps Script property
-  
+const API_PIN = '0409';
+
 let S={tab:'cards',cards:[],offers:[],_selCat:null,_tradeable:false,_newCardImg:null,_selGrad:0,_offerCardId:null,_upcomingWindow:3};
 
-// ── LOCAL SAVE (instant, always) ──────────────────────────────────────────
-function save() {
-  try { localStorage.setItem('vc3', JSON.stringify({ cards: S.cards, offers: S.offers })); } catch(e) {}
-  cloudSave(); // fire and forget
+// ── LOCAL SAVE (instant) + CLOUD SAVE (background) ────────────────────────
+function save(){
+  try{localStorage.setItem('vc3',JSON.stringify({cards:S.cards,offers:S.offers}));}catch(e){}
+  cloudSave();
 }
 
-// ── CLOUD SAVE ─────────────────────────────────────────────────────────────
-async function cloudSave() {
-  try {
-    await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify({ pin: API_PIN, action: 'SAVE', payload: { cards: S.cards, offers: S.offers } })
+// FIX #5: proper Content-Type header so Apps Script can parse the POST body
+async function cloudSave(){
+  try{
+    await fetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pin:API_PIN,action:'SAVE',payload:{cards:S.cards,offers:S.offers}})
     });
-  } catch(e) { /* silent fail — local copy is safe */ }
+  }catch(e){/* silent — local copy is safe */}
 }
 
-// ── LOAD — tries cloud first, falls back to local ─────────────────────────
-async function load() {
-  // Always load local immediately so app opens fast
-  try {
-    const local = JSON.parse(localStorage.getItem('vc3') || 'null');
-    if (local && local.cards) { S.cards = local.cards; S.offers = local.offers || []; }
-  } catch(e) {}
+// FIX #4: script ends with load() not render() — load() calls render() itself
+async function load(){
+  // 1. Load local immediately so app feels instant
+  try{
+    const local=JSON.parse(localStorage.getItem('vc3')||'null');
+    if(local&&local.cards){S.cards=local.cards;S.offers=local.offers||[];}
+  }catch(e){}
+  S.offers.forEach(o=>ensureCurrentInstance(o));
+  render(); // show local data right away
 
-  // Then try cloud in background
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify({ pin: API_PIN, action: 'LOAD', payload: {} })
+  // 2. Then fetch cloud in background and refresh if newer
+  try{
+    const res=await fetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pin:API_PIN,action:'LOAD',payload:{}})
     });
-    const json = await res.json();
-    if (json.ok && json.data) {
-      S.cards = json.data.cards || [];
-      S.offers = json.data.offers || [];
-      // Update local cache with cloud data
-      localStorage.setItem('vc3', JSON.stringify({ cards: S.cards, offers: S.offers }));
+    const json=await res.json();
+    if(json.ok&&json.data&&json.data.cards){
+      S.cards=json.data.cards||[];
+      S.offers=json.data.offers||[];
+      localStorage.setItem('vc3',JSON.stringify({cards:S.cards,offers:S.offers}));
+      S.offers.forEach(o=>ensureCurrentInstance(o));
+      render(); // refresh with cloud data
     }
-  } catch(e) { /* offline — local data is already loaded */ }
-
-  S.offers.forEach(o => ensureCurrentInstance(o));
-  render();
+  }catch(e){/* offline — local data already shown */}
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────
@@ -459,9 +461,6 @@ function updateNotifDot(){
   dot.style.display=soon?'block':'none';
 }
 
-
-// ── CARDS TAB ──────────────────────────────────────────────────────────────
-function renderCards(){
 // ── CARDS TAB ──────────────────────────────────────────────────────────────
 function renderCards(){
   const cardHTMLs=S.cards.map(c=>{
@@ -486,8 +485,7 @@ function renderCards(){
     <div class="tbar-title" onclick="toggleMenu()">Vault<em>Card</em> ▾</div>
     <div class="tbar-actions"><button class="ibtn" onclick="openAddCard()">＋</button></div></div>
     <div class="slabel">My Cards</div>
-        <div class="card-scroll">${cardHTMLs}<div class="add-bcard" onclick="openAddCard()"><div class="add-bcard-plus">＋</div><div style="font-size:12px;font-weight:600">Add Card</div></div></div>
-
+    <div class="card-scroll">${cardHTMLs}<div class="add-bcard" onclick="openAddCard()"><div class="add-bcard-plus">＋</div><div style="font-size:12px;font-weight:600">Add Card</div></div></div>
     <div class="slabel">All Offers</div>
     <div class="cat-scroll" id="all-cats">
       <div class="cpill active" data-c="all" onclick="filterAllCat('all')">🗂 All</div>
@@ -497,7 +495,6 @@ function renderCards(){
       ${S.offers.map(o=>renderOfferItem(o,S.cards.find(c=>c.id===o.cardId),'all')).join('')||emptyHTML('🗂️','No offers yet','Add offers after creating a card.')}
     </div><div style="height:16px"></div>`;
 }
-
 
 // ── OFFER ITEM ─────────────────────────────────────────────────────────────
 function renderOfferItem(o,card,mode){
@@ -631,7 +628,7 @@ function correctInstStatus(offerId,instanceId,newStatus){
   const inst=o.instances.find(x=>x.id===instanceId);
   inst.status=newStatus;
   if(newStatus==='available'){inst.redeemDate=null;inst.useByDate=null;inst.notes='';}
-  soundSwoosh();save();closeSheet();render();
+  save();closeSheet();render();
 }
 function correctInstDate(offerId,instanceId){
   const o=S.offers.find(x=>x.id===offerId);
@@ -872,14 +869,12 @@ function confirmRedeem(offerId){
   const ubd=new Date(y,m-1,d+30);
   inst.status='redeemed';inst.redeemDate=dv;inst.notes=notes;
   inst.useByDate=padDate(ubd.getFullYear(),ubd.getMonth()+1,ubd.getDate());
-  soundSuccess();save();closeSheet();render();
+  save();closeSheet();render();
 }
 function markInstStatus(offerId,newStatus){
   const o=S.offers.find(x=>x.id===offerId);if(!o)return;
   const inst=getCurrentInstance(o);if(!inst)return;
-  inst.status=newStatus;
-  if(newStatus==='used'||newStatus==='sold')soundSuccess();else soundTap();
-  save();closeSheet();render();
+  inst.status=newStatus;save();closeSheet();render();
 }
 
 // ── LIFECYCLE ──────────────────────────────────────────────────────────────
@@ -926,8 +921,7 @@ function saveCard(){
   const type=document.getElementById('c-type').value;
   if(!bank||!l4){alert('Bank name and last 4 digits are required');return}
   S.cards.push({id:uid(),bank,type,last4:l4,first6:f6||'000000',grad:S._selGrad||0,image:_newImg||null});
-  _activeCardIdx=S.cards.length-1; // expand newly added card
-  soundSuccess();save();closeSheet();render();
+  save();closeSheet();render();
 }
 function openCardDetail(cardId){
   const card=S.cards.find(c=>c.id===cardId);if(!card)return;
@@ -1042,15 +1036,15 @@ function importData(e){
 }
 
 // ── SHEET / NAV ────────────────────────────────────────────────────────────
-function openSheet(html){soundTap();document.getElementById('shc').innerHTML=html;document.getElementById('ov').classList.add('open');}
-function closeSheetWithSound(){soundSettle();document.getElementById('ov').classList.remove('open');}
+function openSheet(html){document.getElementById('shc').innerHTML=html;document.getElementById('ov').classList.add('open');}
 function closeSheet(e){if(!e||e.target===document.getElementById('ov'))document.getElementById('ov').classList.remove('open');}
-function switchTab(tab){soundSettle();S.tab=tab;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));closeMenu();render();}
+function switchTab(tab){S.tab=tab;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));closeMenu();render();}
 function emptyHTML(ic,t,s){return`<div class="empty"><div class="ei">${ic}</div><div class="et">${t}</div><div class="es">${s}</div></div>`;}
 
 function padDate(y,m,d){return`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
 
-render();
+// FIX #4: must call load() here, not render() — load() syncs cloud then calls render()
+load();
 </script>
 </body>
 </html>
