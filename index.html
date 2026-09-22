@@ -405,12 +405,14 @@ function save(){
   cloudSave();
 }
 
-// FIX #5: proper Content-Type header so Apps Script can parse the POST body
+// FIX CORS: use no-cors + text/plain to avoid OPTIONS preflight
+// Apps Script parses the body as text regardless — JSON.parse still works
 async function cloudSave(){
   try{
     await fetch(API_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({pin:API_PIN,action:'SAVE',payload:{cards:S.cards,offers:S.offers}})
     });
   }catch(e){/* silent — local copy is safe */}
@@ -427,12 +429,10 @@ async function load(){
   render(); // show local data right away
 
   // 2. Then fetch cloud in background and refresh if newer
+  // Use GET + URL params for LOAD — GET requests don't trigger CORS preflight
   try{
-    const res=await fetch(API_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({pin:API_PIN,action:'LOAD',payload:{}})
-    });
+    const params=encodeURIComponent(JSON.stringify({pin:API_PIN,action:'LOAD',payload:{}}));
+    const res=await fetch(`${API_URL}?req=${params}`,{method:'GET'});
     const json=await res.json();
     if(json.ok&&json.data&&json.data.cards){
       S.cards=json.data.cards||[];
