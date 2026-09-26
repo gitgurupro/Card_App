@@ -276,14 +276,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 <div class="menu-overlay" id="logo-menu">
   <div class="menu-backdrop" onclick="closeMenu()"></div>
   <div class="menu-box">
-    <button class="menu-item" onclick="manualSync()"><span class="mi-ic">☁️</span><span id="sync-label">Sync to Google Sheets</span></button>
+    <button class="menu-item" onclick="importFromSheets()"><span class="mi-ic">☁️</span>Import from Google Sheets</button>
+    <button class="menu-item" onclick="exportToSheets()"><span class="mi-ic">📤</span>Export to Google Sheets</button>
     <div class="menu-sep"></div>
-    <button class="menu-item" onclick="exportData()"><span class="mi-ic">📤</span>Export backup</button>
-    <button class="menu-item" onclick="triggerImport()"><span class="mi-ic">📥</span>Import backup</button>
+    <button class="menu-item" onclick="exportData()"><span class="mi-ic">💾</span>Export local backup</button>
+    <button class="menu-item" onclick="triggerImport()"><span class="mi-ic">📂</span>Import local backup</button>
     <div class="menu-sep"></div>
     <button class="menu-item" onclick="closeMenu();openAddCard()"><span class="mi-ic">➕</span>Add new card</button>
     <div class="menu-sep"></div>
-    <div style="padding:8px 13px;font-size:11px;color:var(--t3)" id="sync-status">Last sync: not yet</div>
+    <div style="padding:8px 13px;font-size:11px;color:var(--t3)">Export passkey: <strong style="color:var(--t2);letter-spacing:.1em">1234</strong></div>
   </div>
 </div>
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
@@ -1176,104 +1177,145 @@ function setRedFilter(sf){
 function deleteOffer(id){if(!confirm('Remove this offer and all its history?'))return;S.offers=S.offers.filter(o=>o.id!==id);save();closeSheet();render();}
 function deleteCard(id){if(!confirm('Remove this card and ALL its offers?'))return;S.cards=S.cards.filter(c=>c.id!==id);S.offers=S.offers.filter(o=>o.cardId!==id);save();closeSheet();render();}
 
-// ── MANUAL SYNC WITH VISIBLE DEBUG ────────────────────────────────────────
-async function manualSync(){
-  closeMenu();
-  showSyncDebug('🔄 Starting sync…','');
+// ── SYNC CONFIG ────────────────────────────────────────────────────────────
+const EXPORT_PASSKEY = '1234';
 
-  // Step 1: PING
-  showSyncDebug('🔄 Step 1/3 — Pinging API…','');
+// ── IMPORT FROM GOOGLE SHEETS ──────────────────────────────────────────────
+async function importFromSheets(){
+  closeMenu();
+  showSyncDebug('🔄 Importing from Google Sheets…','Connecting to your Sheet…');
   try{
+    const url=`${API_URL}?req=${encodeURIComponent(JSON.stringify({pin:API_PIN,action:'LOAD',payload:{}}))}`;
+    const res=await fetch(url,{method:'GET'});
+    const text=await res.text();
+    let json;
+    try{json=JSON.parse(text);}catch(e){
+      showSyncDebug('❌ Import failed — bad response',`Raw response:\n${text}\n\nThe Apps Script may still be running old code. Redeploy with a new version.`);return;
+    }
+    if(!json.ok){
+      showSyncDebug('❌ Import failed — '+json.error,`Response: ${JSON.stringify(json,null,2)}\n\nIf "Unauthorized" — check ACCESS_PIN in Script Properties = ${API_PIN}`);return;
+    }
+    const cards=json.data.cards||[];
+    const offers=json.data.offers||[];
+    if(cards.length===0&&offers.length===0){
+      showSyncDebug('⚠️ Sheet is empty',`Google Sheet returned 0 cards and 0 offers.\n\nThis means either:\n1. You haven't exported to Sheets yet\n2. Sheet tab names are wrong (must be: cards, offers)\n3. Sheet headers are missing\n\nTry Export to Sheets first.`);return;
+    }
+    S.cards=cards;S.offers=offers;
+    localStorage.setItem('vc3',JSON.stringify({cards:S.cards,offers:S.offers}));
+    S.offers.forEach(o=>ensureCurrentInstance(o));
+    const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    showSyncDebug(
+      `✅ Import complete — ${now}`,
+      `Cards loaded: ${cards.length}\nOffers loaded: ${offers.length}\n\nYour app is now updated with data from Google Sheets.`
+    );
+    render();
+  }catch(e){
+    showSyncDebug('❌ Import failed — network error',`Error: ${e.message}\n\nCheck your internet connection and that the API URL is correct.`);
+  }
+}
+
+// ── EXPORT TO GOOGLE SHEETS (passkey protected) ────────────────────────────
+function exportToSheets(){
+  closeMenu();
+  // Show passkey prompt sheet
+  const div=document.createElement('div');
+  div.id='sync-debug-overlay';
+  div.style.cssText=`position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:flex-end;justify-content:center;max-width:430px;margin:0 auto;font-family:var(--ff);`;
+  div.innerHTML=`
+    <div style="background:var(--bg2);border-radius:22px 22px 0 0;width:100%;padding:20px 20px 36px;border-top:2px solid var(--v)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:16px;font-weight:800;color:var(--vl)">🔐 Export to Google Sheets</div>
+        <button onclick="document.getElementById('sync-debug-overlay').remove()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--bg3);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--ff)">Cancel</button>
+      </div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:16px">This will overwrite all data in your Google Sheet with your current app data.</div>
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">Enter export passkey</label>
+        <input id="export-passkey-input" type="password" class="finput" placeholder="Enter passkey" inputmode="numeric"
+          style="width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;color:var(--text);font-size:18px;font-family:var(--ff);outline:none;letter-spacing:.2em;color-scheme:dark"
+          onkeydown="if(event.key==='Enter')confirmExport()">
+      </div>
+      <button onclick="confirmExport()" style="width:100%;padding:13px;border-radius:12px;border:none;font-size:15px;font-weight:700;font-family:var(--ff);cursor:pointer;background:linear-gradient(135deg,var(--vd),var(--vl));color:#fff">Export Now</button>
+    </div>`;
+  document.body.appendChild(div);
+  setTimeout(()=>document.getElementById('export-passkey-input')?.focus(),100);
+}
+
+async function confirmExport(){
+  const input=document.getElementById('export-passkey-input');
+  if(!input)return;
+  const entered=input.value.trim();
+  if(entered!==EXPORT_PASSKEY){
+    input.style.borderColor='var(--co)';
+    input.value='';
+    input.placeholder='Wrong passkey — try again';
+    setTimeout(()=>{input.style.borderColor='var(--bd)';input.placeholder='Enter passkey';},1500);
+    return;
+  }
+  // Passkey correct — proceed with export
+  showSyncDebug('🔄 Exporting to Google Sheets…','Sending your data…');
+  try{
+    // Step 1: PING first
     const pingUrl=`${API_URL}?req=${encodeURIComponent(JSON.stringify({pin:API_PIN,action:'PING',payload:{}}))}`;
     const pingRes=await fetch(pingUrl,{method:'GET'});
-    const pingType=pingRes.type;
-    const pingStatus=pingRes.status;
-    let pingText='';
-    try{pingText=await pingRes.text();}catch(e){pingText='(unreadable — opaque response)';}
-    if(pingType==='opaque'||pingText===''){
-      showSyncDebug(
-        '❌ CORS block on PING',
-        `Response type: ${pingType}\nStatus: ${pingStatus}\nBody: (blocked by browser)\n\nFix: In Apps Script → Deploy → Manage Deployments → Edit → set "Who has access" to ANYONE (not "Anyone with Google account")`
-      );return;
-    }
+    const pingText=await pingRes.text();
     let pingJson;
     try{pingJson=JSON.parse(pingText);}catch(e){
-      showSyncDebug('❌ PING response not valid JSON',`Raw response:\n${pingText}\n\nThis means old Apps Script code is still live. Redeploy with new version.`);return;
+      showSyncDebug('❌ Export failed — API not responding',`Raw: ${pingText}\n\nRedeploy your Apps Script with a new version.`);return;
     }
     if(!pingJson.ok){
-      showSyncDebug('❌ PING failed — '+pingJson.error,`Response: ${JSON.stringify(pingJson,null,2)}\n\nIf error is "Unauthorized" — check ACCESS_PIN in Script Properties = 009`);return;
+      showSyncDebug('❌ Export failed — '+pingJson.error,`Check ACCESS_PIN in Script Properties = ${API_PIN}`);return;
     }
-    showSyncDebug('✅ Step 1/3 — API reachable','Step 2/3 — Saving data…');
-  }catch(e){
-    showSyncDebug('❌ PING network error',`Error: ${e.message}\n\nPossible causes:\n1. Wrong API URL in app\n2. Apps Script not deployed\n3. No internet connection`);return;
-  }
-
-  // Step 2: SAVE
-  showSyncDebug('🔄 Step 2/3 — Saving to Google Sheets…','');
-  try{
+    // Step 2: SAVE
     await fetch(API_URL,{
       method:'POST',
       mode:'no-cors',
       headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({pin:API_PIN,action:'SAVE',payload:{cards:S.cards,offers:S.offers}})
     });
-    showSyncDebug('✅ Step 2/3 — Save request sent','Step 3/3 — Verifying by reloading from Sheets…');
-  }catch(e){
-    showSyncDebug('❌ SAVE failed',`Error: ${e.message}`);return;
-  }
-
-  // Step 3: LOAD back to verify
-  showSyncDebug('🔄 Step 3/3 — Loading back from Sheets to verify…','');
-  try{
+    // Step 3: Verify by loading back
+    showSyncDebug('🔄 Verifying export…','Reading back from Sheet to confirm…');
+    await new Promise(r=>setTimeout(r,1500)); // small delay for Sheets to commit
     const loadUrl=`${API_URL}?req=${encodeURIComponent(JSON.stringify({pin:API_PIN,action:'LOAD',payload:{}}))}`;
     const loadRes=await fetch(loadUrl,{method:'GET'});
     const loadText=await loadRes.text();
     let loadJson;
     try{loadJson=JSON.parse(loadText);}catch(e){
-      showSyncDebug('❌ LOAD response not valid JSON',`Raw: ${loadText}`);return;
+      showSyncDebug('⚠️ Exported but could not verify',`Data was sent but Sheet response was not readable.\nCheck your Google Sheet manually.`);return;
     }
     if(!loadJson.ok){
-      showSyncDebug('❌ LOAD failed — '+loadJson.error,`Response: ${JSON.stringify(loadJson,null,2)}`);return;
+      showSyncDebug('⚠️ Exported but verify failed',`Error: ${loadJson.error}`);return;
     }
     const cards=loadJson.data.cards||[];
     const offers=loadJson.data.offers||[];
-    S.cards=cards;S.offers=offers;
-    localStorage.setItem('vc3',JSON.stringify({cards:S.cards,offers:S.offers}));
-    S.offers.forEach(o=>ensureCurrentInstance(o));
     const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     showSyncDebug(
-      `✅ Sync complete — ${now}`,
-      `Cards in Sheet: ${cards.length}\nOffers in Sheet: ${offers.length}\n\nAll data confirmed in Google Sheets.`
+      `✅ Export complete — ${now}`,
+      `Cards saved to Sheet: ${cards.length}\nOffers saved to Sheet: ${offers.length}\n\nGoogle Sheet is now up to date with your app data.`
     );
-    render();
   }catch(e){
-    showSyncDebug('❌ LOAD/verify failed',`Error: ${e.message}`);
+    showSyncDebug('❌ Export failed — network error',`Error: ${e.message}`);
   }
 }
 
+// ── SYNC DEBUG PANEL ───────────────────────────────────────────────────────
 function showSyncDebug(title,detail){
-  // Remove any existing debug panel
   const existing=document.getElementById('sync-debug-overlay');
   if(existing)existing.remove();
-
   const div=document.createElement('div');
   div.id='sync-debug-overlay';
-  div.style.cssText=`
-    position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;
-    display:flex;align-items:flex-end;justify-content:center;
-    max-width:430px;margin:0 auto;font-family:var(--ff);
-  `;
+  div.style.cssText=`position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:flex-end;justify-content:center;max-width:430px;margin:0 auto;font-family:var(--ff);`;
   const isError=title.startsWith('❌');
-  const isDone=title.startsWith('✅') && title.includes('complete');
-  const color=isError?'var(--co)':isDone?'var(--em)':'var(--am)';
+  const isWarn=title.startsWith('⚠️');
+  const isDone=title.startsWith('✅');
+  const color=isError?'var(--co)':isWarn?'var(--am)':isDone?'var(--em)':'var(--vl)';
   div.innerHTML=`
     <div style="background:var(--bg2);border-radius:22px 22px 0 0;width:100%;padding:20px 20px 36px;border-top:2px solid ${color}">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div style="font-size:16px;font-weight:800;color:${color}">${title}</div>
-        ${isDone||isError?`<button onclick="document.getElementById('sync-debug-overlay').remove();render()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--bg3);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--ff)">Close</button>`:''}
+        <div style="font-size:15px;font-weight:800;color:${color};flex:1;padding-right:10px">${title}</div>
+        ${isDone||isError||isWarn?`<button onclick="document.getElementById('sync-debug-overlay').remove();render()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--bg3);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--ff);flex-shrink:0">Close</button>`:''}
       </div>
-      ${detail?`<pre style="background:var(--bg3);border-radius:10px;padding:14px;font-size:12px;color:var(--t2);white-space:pre-wrap;word-break:break-word;line-height:1.6;max-height:300px;overflow-y:auto;font-family:monospace">${detail}</pre>`:''}
-      ${!isDone&&!isError?`<div style="display:flex;gap:8px;margin-top:12px">${[0,1,2].map(i=>`<div style="flex:1;height:3px;border-radius:3px;background:${i===0?'var(--vl)':'var(--bd)'}"></div>`).join('')}</div>`:''}
+      ${detail?`<pre style="background:var(--bg3);border-radius:10px;padding:14px;font-size:12px;color:var(--t2);white-space:pre-wrap;word-break:break-word;line-height:1.6;max-height:280px;overflow-y:auto;font-family:monospace">${detail}</pre>`:''}
+      ${!isDone&&!isError&&!isWarn?`<div style="display:flex;gap:6px;margin-top:14px">${[0,1,2].map((_,i)=>`<div style="flex:1;height:3px;border-radius:3px;background:${i===0?'var(--vl)':'var(--bd)'}"></div>`).join('')}</div>`:''}
     </div>`;
   document.body.appendChild(div);
 }
