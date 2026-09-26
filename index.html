@@ -23,8 +23,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 #view{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--tab)+12px);scrollbar-width:none}
 #view::-webkit-scrollbar{display:none}
 
-.topbar{padding:18px 18px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;background:linear-gradient(180deg,var(--bg) 75%,transparent)}
-.tbar-title{font-size:20px;font-weight:800;letter-spacing:-0.4px;cursor:pointer;user-select:none}
+.topbar{padding:14px 18px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;background:linear-gradient(180deg,var(--bg) 75%,transparent)}
+.tbar-left{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.app-logo{width:34px;height:34px;border-radius:9px;object-fit:cover;flex-shrink:0;display:none}
+.app-logo.loaded{display:block}
+.app-logo-placeholder{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--vd),var(--vl));display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.tbar-title{font-size:20px;font-weight:800;letter-spacing:-0.4px}
 .tbar-title em{color:var(--vl);font-style:normal}
 .tbar-actions{display:flex;gap:8px}
 .ibtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--bd);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:16px;transition:.15s;flex-shrink:0}
@@ -277,12 +281,19 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     <div class="menu-sep"></div>
     <button class="menu-item" onclick="closeMenu();openAddCard()"><span class="mi-ic">➕</span>Add new card</button>
     <div class="menu-sep"></div>
+    <button class="menu-item" onclick="triggerLogoUpload()"><span class="mi-ic">🖼️</span>Set app logo</button>
+    <button class="menu-item" onclick="removeLogo()"><span class="mi-ic">🗑️</span>Remove logo</button>
+    <div class="menu-sep"></div>
     <div style="padding:8px 13px;font-size:11px;color:var(--t3)">VaultCard — synced to Google Sheets ☁️</div>
   </div>
 </div>
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+<input type="file" id="logo-file" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
 
 <script>
+// ── APP LOGO — paste your image URL here when ready ───────────────────────
+const APP_LOGO_URL = 'https://www.cleanpng.com/png-credit-card-icon-illustration-of-stacked-credit-ca-ya3p5m/'; // e.g. 'https://yoursite.com/logo.png' or a base64 data URI
+
 // ── CONSTANTS ─────────────────────────────────────────────────────────────
 const CATS=[
   {id:'spa',l:'Spa',e:'🧖'},{id:'golf',l:'Golf',e:'⛳'},
@@ -452,6 +463,14 @@ function render(){
   else if(S.tab==='redeemed') v.innerHTML=renderRedeemed();
   else if(S.tab==='upcoming') v.innerHTML=renderUpcoming();
   updateNotifDot();
+  // Apply logo if URL is set
+  const logoImg=document.getElementById('app-logo-img');
+  const logoFallback=document.getElementById('app-logo-fallback');
+  if(APP_LOGO_URL&&logoImg){
+    logoImg.src=APP_LOGO_URL;
+    logoImg.style.display='block';
+    if(logoFallback)logoFallback.style.display='none';
+  }
 }
 function updateNotifDot(){
   const dot=document.getElementById('notif-dot');
@@ -482,7 +501,13 @@ function renderCards(){
       </div></div>`;
   }).join('');
   return`<div class="topbar">
-    <div class="tbar-title" onclick="toggleMenu()">Vault<em>Card</em> ▾</div>
+    <div class="tbar-left" onclick="toggleMenu()">
+      <div class="app-logo-placeholder" id="app-logo-wrap">
+        <img class="app-logo" id="app-logo-img" src="" alt="" onload="this.classList.add('loaded');this.parentElement.style.background='none'">
+        <span id="app-logo-fallback">💳</span>
+      </div>
+      <div class="tbar-title">Vault<em>Card</em> ▾</div>
+    </div>
     <div class="tbar-actions"><button class="ibtn" onclick="openAddCard()">＋</button></div></div>
     <div class="slabel">My Cards</div>
     <div class="card-scroll">${cardHTMLs}<div class="add-bcard" onclick="openAddCard()"><div class="add-bcard-plus">＋</div><div style="font-size:12px;font-weight:600">Add Card</div></div></div>
@@ -832,7 +857,10 @@ function openOfferDetail(offerId){
             <span class="chip chip-${i.status}" style="cursor:pointer" onclick="openCorrectStatus('${o.id}','${i.id}')">${STATUS_LABELS[i.status]} ✎</span>
           </div></div>`).join('')}`:''}
       <div class="div"></div>
-      <button class="btn btn-d" onclick="deleteOffer('${offerId}')">Remove offer</button>
+      <div class="btn-gap">
+        <button class="btn btn-s" onclick="openEditOffer('${offerId}')">✎ Edit Offer Details</button>
+        <button class="btn btn-d" onclick="deleteOffer('${offerId}')">Remove offer</button>
+      </div>
     </div><div style="height:20px"></div>`);
 }
 
@@ -889,6 +917,153 @@ function setLC(offerId,newLC,note){
   save();closeSheet();render();
 }
 
+// ── EDIT CARD ──────────────────────────────────────────────────────────────
+let _editCardImg=null,_editCardId=null;
+function openEditCard(cardId){
+  const card=S.cards.find(c=>c.id===cardId);if(!card)return;
+  _editCardId=cardId;_editCardImg=card.image||null;
+  S._selGrad=card.grad||0;
+  openSheet(`
+    <div class="sheet-hdr"><div class="sheet-title">Edit Card</div><button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sbody">
+      <div class="fg"><label>Card image</label>
+        <div class="img-up" id="edit-iup">
+          ${card.image
+            ?`<img src="${card.image}" alt=""><button class="img-rm" onclick="editRmImg(event)">✕</button>`
+            :`<input type="file" accept="image/*" onchange="handleEditImg(event)"><div class="iup-ic">🖼️</div><div class="iup-lbl">Tap to upload card photo</div>`
+          }
+        </div>
+      </div>
+      <div class="fg"><label>Card colour</label>
+        <div class="cpresets">
+          ${CARD_GRADS.map((g,i)=>`<div class="cpreset${i===S._selGrad?' sel':''}" style="background:${g.g}" onclick="selGrad(this,${i})"></div>`).join('')}
+        </div>
+      </div>
+      <div class="fg"><label>Bank / Issuer name</label>
+        <input class="finput" type="text" id="ec-bank" value="${card.bank}" placeholder="e.g. HDFC Bank"></div>
+      <div class="frow">
+        <div class="fg"><label>First 6 digits</label>
+          <input class="finput" type="text" id="ec-f6" maxlength="6" value="${card.first6}" placeholder="472381" inputmode="numeric"></div>
+        <div class="fg"><label>Last 4 digits</label>
+          <input class="finput" type="text" id="ec-l4" maxlength="4" value="${card.last4}" placeholder="4521" inputmode="numeric"></div>
+      </div>
+      <div class="fg"><label>Card type</label>
+        <select class="fselect" id="ec-type">
+          ${['Credit','Debit','Gift'].map(t=>`<option${card.type===t?' selected':''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <button class="btn btn-p" onclick="saveEditCard()">Save Changes</button>
+    </div><div style="height:20px"></div>`);
+}
+function handleEditImg(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    _editCardImg=ev.target.result;
+    const a=document.getElementById('edit-iup');
+    a.innerHTML=`<img src="${_editCardImg}" alt=""><button class="img-rm" onclick="editRmImg(event)">✕</button>`;
+  };r.readAsDataURL(f);
+}
+function editRmImg(e){
+  e.stopPropagation();_editCardImg=null;
+  const a=document.getElementById('edit-iup');
+  a.innerHTML=`<input type="file" accept="image/*" onchange="handleEditImg(event)"><div class="iup-ic">🖼️</div><div class="iup-lbl">Tap to upload card photo</div>`;
+}
+function saveEditCard(){
+  const bank=document.getElementById('ec-bank').value.trim();
+  const l4=document.getElementById('ec-l4').value.trim();
+  const f6=document.getElementById('ec-f6').value.trim();
+  const type=document.getElementById('ec-type').value;
+  if(!bank||!l4){alert('Bank name and last 4 digits are required');return}
+  const card=S.cards.find(c=>c.id===_editCardId);if(!card)return;
+  card.bank=bank;card.last4=l4;card.first6=f6||card.first6;
+  card.type=type;card.grad=S._selGrad||0;card.image=_editCardImg;
+  save();closeSheet();render();
+}
+
+// ── EDIT OFFER ─────────────────────────────────────────────────────────────
+function openEditOffer(offerId){
+  const o=S.offers.find(x=>x.id===offerId);if(!o)return;
+  const inst=getCurrentInstance(o);
+  S._selCat=o.cat;S._tradeable=o.tradeable;
+  openSheet(`
+    <div class="sheet-hdr"><div class="sheet-title">Edit Offer</div><button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sbody">
+      <div class="fg"><label>Category</label>
+        <div class="cat-grid">
+          ${CATS.map(c=>`<div class="cat-opt${c.id===o.cat?' sel':''}" data-cat="${c.id}" onclick="selCat('${c.id}')">
+            <span class="cem">${c.e}</span><span class="cnm">${c.l}</span></div>`).join('')}
+        </div>
+      </div>
+      <div class="fg"><label>Offer name</label>
+        <input class="finput" type="text" id="eo-name" value="${o.name}" placeholder="e.g. Spa Session…"></div>
+      <div class="fg"><label>Reset cycle</label>
+        <select class="fselect" id="eo-cycle" onchange="updateEditReset()">
+          ${CYCLES.map(c=>`<option value="${c.v}"${c.v===o.cycle?' selected':''}>${c.l}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg"><label>Next reset date</label>
+        <input class="finput" type="date" id="eo-reset" value="${inst?inst.cycleEnd:cycleEndFor(o.cycle,cycleStartFor(o.cycle))}">
+        <div class="fhint">Change only if your bank uses a different reset date than the Jan 1 calendar anchor.</div>
+      </div>
+      <div class="fg"><label>Transferable / Tradeable</label>
+        <div class="tgl-group" style="margin:0">
+          <button class="tgl-opt${!o.tradeable?' active':''}" id="eo-td-no" onclick="setEditTrd(false)">Personal only</button>
+          <button class="tgl-opt${o.tradeable?' active':''}" id="eo-td-yes" onclick="setEditTrd(true)">Can sell / transfer</button>
+        </div>
+      </div>
+      <div class="fg"><label>Lifecycle status</label>
+        <select class="fselect" id="eo-lc">
+          ${['active','paused','ended'].map(l=>`<option value="${l}"${l===o.lifecycle?' selected':''}>${l.charAt(0).toUpperCase()+l.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg"><label>Lifecycle note (optional)</label>
+        <input class="finput" type="text" id="eo-lcnote" value="${o.lcNote||''}" placeholder="e.g. Bank suspended from Q4 2026"></div>
+      <div class="info-box info-am">Changing the cycle affects future resets only. Past cycle history is preserved.</div>
+      <button class="btn btn-p" onclick="saveEditOffer('${offerId}')">Save Changes</button>
+    </div><div style="height:20px"></div>`);
+}
+function setEditTrd(v){
+  S._tradeable=v;
+  document.getElementById('eo-td-yes').classList.toggle('active',v);
+  document.getElementById('eo-td-no').classList.toggle('active',!v);
+}
+function updateEditReset(){
+  const cy=parseInt(document.getElementById('eo-cycle').value);
+  document.getElementById('eo-reset').value=cycleEndFor(cy,cycleStartFor(cy));
+}
+function saveEditOffer(offerId){
+  const name=document.getElementById('eo-name').value.trim();
+  const cycle=parseInt(document.getElementById('eo-cycle').value);
+  const resetDate=document.getElementById('eo-reset').value;
+  const lc=document.getElementById('eo-lc').value;
+  const lcNote=document.getElementById('eo-lcnote').value.trim();
+  if(!name){alert('Please enter an offer name');return}
+  if(!S._selCat){alert('Please select a category');return}
+  const o=S.offers.find(x=>x.id===offerId);if(!o)return;
+  const cycleChanged=o.cycle!==cycle;
+  o.name=name;o.cat=S._selCat;o.cycle=cycle;
+  o.tradeable=!!S._tradeable;o.lifecycle=lc;o.lcNote=lcNote;
+  // If cycle changed, update the current instance's cycleEnd to match new reset date
+  if(cycleChanged||resetDate){
+    const inst=getCurrentInstance(o);
+    if(inst&&resetDate){inst.cycleEnd=resetDate;}
+    // If cycle changed, recalculate current instance dates
+    if(cycleChanged){
+      const cs=cycleStartFor(cycle);
+      const ce=cycleEndFor(cycle,cs);
+      const lbl=cycleLabel(cycle,cs);
+      const existing=o.instances.find(i=>i.cycleStart===cs);
+      if(!existing&&lc==='active'){
+        o.instances.push({id:uid(),offerId:o.id,cycleStart:cs,cycleEnd:resetDate||ce,
+          cycleLabel:lbl,status:'available',redeemDate:null,useByDate:null,notes:''});
+      }
+    }
+  }
+  if(lc==='active')ensureCurrentInstance(o);
+  save();closeSheet();render();
+}
+
 // ── ADD CARD ───────────────────────────────────────────────────────────────
 let _newImg=null;
 function openAddCard(){
@@ -940,6 +1115,7 @@ function openCardDetail(cardId){
       ${offers.map(o=>renderOfferItem(o,card,'card')).join('')||emptyHTML('🎁','No offers yet','Tap Add Offer to set up recurring vouchers for this card.')}
       <div class="btn-gap" style="margin-top:18px">
         <button class="btn btn-s" onclick="openAddOffer('${cardId}')">＋ Add Offer</button>
+        <button class="btn btn-s" onclick="openEditCard('${cardId}')">✎ Edit Card Details</button>
         <button class="btn btn-d" onclick="deleteCard('${cardId}')">Remove card</button>
       </div>
     </div><div style="height:20px"></div>`);
@@ -1043,7 +1219,141 @@ function emptyHTML(ic,t,s){return`<div class="empty"><div class="ei">${ic}</div>
 
 function padDate(y,m,d){return`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
 
+// ── APP LOGO ───────────────────────────────────────────────────────────────
+function triggerLogoUpload(){closeMenu();document.getElementById('logo-file').click();}
+function handleLogoUpload(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{localStorage.setItem('vc_logo',ev.target.result);}catch(err){}
+    applyLogo(ev.target.result);
+  };
+  r.readAsDataURL(f);
+  e.target.value='';
+}
+function applyLogo(src){
+  const img=document.getElementById('app-logo-img');
+  const fallback=document.getElementById('app-logo-fallback');
+  if(img&&src){img.src=src;if(fallback)fallback.style.display='none';}
+}
+function removeLogo(){
+  closeMenu();
+  try{localStorage.removeItem('vc_logo');}catch(e){}
+  const img=document.getElementById('app-logo-img');
+  const fallback=document.getElementById('app-logo-fallback');
+  if(img){img.src='';img.classList.remove('loaded');}
+  const wrap=document.getElementById('app-logo-wrap');
+  if(wrap)wrap.style.background='';
+  if(fallback)fallback.style.display='';
+}
+function loadLogo(){
+  try{const src=localStorage.getItem('vc_logo');if(src)setTimeout(()=>applyLogo(src),100);}catch(e){}
+}
+
+// ── EDIT CARD ──────────────────────────────────────────────────────────────
+function openEditCard(cardId){
+  const card=S.cards.find(c=>c.id===cardId);if(!card)return;
+  _newImg=card.image||null;
+  openSheet(`
+    <div class="sheet-hdr"><div class="sheet-title">Edit Card</div><button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sbody">
+      <div class="fg"><label>Card image</label>
+        <div class="img-up" id="iup">
+          ${card.image
+            ?`<img src="${card.image}" alt=""><button class="img-rm" onclick="rmImg(event)">✕</button>`
+            :`<input type="file" accept="image/*" onchange="handleImg(event)"><div class="iup-ic">🖼️</div><div class="iup-lbl">Tap to upload card photo</div>`
+          }
+        </div></div>
+      <div class="fg"><label>Card colour</label>
+        <div class="cpresets">${CARD_GRADS.map((g,i)=>`<div class="cpreset${i===(card.grad||0)?' sel':''}" style="background:${g.g}" onclick="selGrad(this,${i})"></div>`).join('')}</div></div>
+      <div class="fg"><label>Bank / Issuer name</label>
+        <input class="finput" type="text" id="c-bank" value="${card.bank||''}"></div>
+      <div class="frow">
+        <div class="fg"><label>First 6 digits</label>
+          <input class="finput" type="text" id="c-f6" maxlength="6" value="${card.first6||''}" inputmode="numeric"></div>
+        <div class="fg"><label>Last 4 digits</label>
+          <input class="finput" type="text" id="c-l4" maxlength="4" value="${card.last4||''}" inputmode="numeric"></div>
+      </div>
+      <div class="fg"><label>Card type</label>
+        <select class="fselect" id="c-type">
+          <option${card.type==='Credit'?' selected':''}>Credit</option>
+          <option${card.type==='Debit'?' selected':''}>Debit</option>
+          <option${card.type==='Gift'?' selected':''}>Gift</option>
+        </select></div>
+      <button class="btn btn-p" onclick="saveEditCard('${cardId}')">Save Changes</button>
+    </div><div style="height:20px"></div>`);
+  S._selGrad=card.grad||0;
+}
+function saveEditCard(cardId){
+  const card=S.cards.find(c=>c.id===cardId);if(!card)return;
+  const bank=document.getElementById('c-bank').value.trim();
+  const l4=document.getElementById('c-l4').value.trim();
+  const f6=document.getElementById('c-f6').value.trim();
+  const type=document.getElementById('c-type').value;
+  if(!bank||!l4){alert('Bank name and last 4 digits are required');return}
+  card.bank=bank;card.last4=l4;card.first6=f6||card.first6;
+  card.type=type;card.grad=S._selGrad||0;
+  if(_newImg!==undefined)card.image=_newImg;
+  save();closeSheet();render();
+}
+
+// ── EDIT OFFER ─────────────────────────────────────────────────────────────
+function openEditOffer(offerId){
+  const o=S.offers.find(x=>x.id===offerId);if(!o)return;
+  S._selCat=o.cat;S._tradeable=o.tradeable;
+  openSheet(`
+    <div class="sheet-hdr"><div class="sheet-title">Edit Offer</div><button class="sheet-close" onclick="closeSheet()">✕</button></div>
+    <div class="sbody">
+      <div class="fg"><label>Category</label>
+        <div class="cat-grid">${CATS.map(c=>`<div class="cat-opt${c.id===o.cat?' sel':''}" data-cat="${c.id}" onclick="selCat('${c.id}')"><span class="cem">${c.e}</span><span class="cnm">${c.l}</span></div>`).join('')}</div></div>
+      <div class="fg"><label>Offer name</label>
+        <input class="finput" type="text" id="o-name" value="${o.name}"></div>
+      <div class="fg"><label>Reset cycle</label>
+        <select class="fselect" id="o-cycle" onchange="updateNextReset()">
+          ${CYCLES.map(c=>`<option value="${c.v}"${c.v===o.cycle?' selected':''}>${c.l}</option>`).join('')}
+        </select></div>
+      <div class="fg"><label>Current cycle next reset</label>
+        <input class="finput" type="date" id="o-reset" value="${getNextResetDate(o)}">
+        <div class="fhint">Changes the expected reset date for this offer going forward.</div></div>
+      <div class="fg"><label>Transferable / Tradeable</label>
+        <div class="tgl-group" style="margin:0">
+          <button class="tgl-opt${!o.tradeable?' active':''}" id="td-no" onclick="setTrd(false)">Personal only</button>
+          <button class="tgl-opt${o.tradeable?' active':''}" id="td-yes" onclick="setTrd(true)">Can sell / transfer</button>
+        </div></div>
+      <div class="info-box info-am" style="margin-top:4px">Changing the cycle affects future resets only. Past history is preserved.</div>
+      <button class="btn btn-p" onclick="saveEditOffer('${offerId}')">Save Changes</button>
+    </div><div style="height:20px"></div>`);
+}
+function saveEditOffer(offerId){
+  const o=S.offers.find(x=>x.id===offerId);if(!o)return;
+  const name=document.getElementById('o-name').value.trim();
+  const cycle=parseInt(document.getElementById('o-cycle').value);
+  const resetDate=document.getElementById('o-reset').value;
+  if(!name){alert('Please enter an offer name');return}
+  if(!S._selCat){alert('Please select a category');return}
+  const cycleChanged=cycle!==o.cycle;
+  o.name=name;o.cat=S._selCat;o.cycle=cycle;o.tradeable=!!S._tradeable;
+  // If cycle changed, regenerate the current instance with new cycle
+  if(cycleChanged){
+    const cs=getCurrentCycleStart(o);
+    const existingInst=o.instances.find(i=>i.cycleStart===cs);
+    if(existingInst){
+      existingInst.cycleEnd=cycleEndFor(cycle,cs);
+      existingInst.cycleLabel=cycleLabel(cycle,cs);
+    }
+  }
+  // If user manually changed next reset, update current instance cycleEnd
+  if(resetDate){
+    const cs=getCurrentCycleStart(o);
+    const inst=o.instances.find(i=>i.cycleStart===cs);
+    if(inst)inst.cycleEnd=resetDate;
+  }
+  save();closeSheet();render();
+}
+
+// ── LOGO ───────────────────────────────────────────────────────────────────
 // FIX #4: must call load() here, not render() — load() syncs cloud then calls render()
+loadLogo();
 load();
 </script>
 </body>
