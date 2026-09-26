@@ -409,49 +409,19 @@ const API_PIN = '0409';
 
 let S={tab:'cards',cards:[],offers:[],_selCat:null,_tradeable:false,_newCardImg:null,_selGrad:0,_offerCardId:null,_upcomingWindow:3};
 
-// ── LOCAL SAVE (instant) + CLOUD SAVE (background) ────────────────────────
+// ── LOCAL SAVE ONLY — use Export to Google Sheets for cloud sync ──────────
 function save(){
   try{localStorage.setItem('vc3',JSON.stringify({cards:S.cards,offers:S.offers}));}catch(e){}
-  cloudSave();
 }
 
-// FIX CORS: use no-cors + text/plain to avoid OPTIONS preflight
-// Apps Script parses the body as text regardless — JSON.parse still works
-async function cloudSave(){
-  try{
-    await fetch(API_URL,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({pin:API_PIN,action:'SAVE',payload:{cards:S.cards,offers:S.offers}})
-    });
-  }catch(e){/* silent — local copy is safe */}
-}
-
-// FIX #4: script ends with load() not render() — load() calls render() itself
+// Local only on startup — use Import from Google Sheets button for cloud sync
 async function load(){
-  // 1. Load local immediately so app feels instant
   try{
     const local=JSON.parse(localStorage.getItem('vc3')||'null');
     if(local&&local.cards){S.cards=local.cards;S.offers=local.offers||[];}
   }catch(e){}
   S.offers.forEach(o=>ensureCurrentInstance(o));
-  render(); // show local data right away
-
-  // 2. Then fetch cloud in background and refresh if newer
-  // Use GET + URL params for LOAD — GET requests don't trigger CORS preflight
-  try{
-    const params=encodeURIComponent(JSON.stringify({pin:API_PIN,action:'LOAD',payload:{}}));
-    const res=await fetch(`${API_URL}?req=${params}`,{method:'GET'});
-    const json=await res.json();
-    if(json.ok&&json.data&&json.data.cards){
-      S.cards=json.data.cards||[];
-      S.offers=json.data.offers||[];
-      localStorage.setItem('vc3',JSON.stringify({cards:S.cards,offers:S.offers}));
-      S.offers.forEach(o=>ensureCurrentInstance(o));
-      render(); // refresh with cloud data
-    }
-  }catch(e){/* offline — local data already shown */}
+  render();
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────
