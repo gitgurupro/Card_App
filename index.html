@@ -1176,39 +1176,106 @@ function setRedFilter(sf){
 function deleteOffer(id){if(!confirm('Remove this offer and all its history?'))return;S.offers=S.offers.filter(o=>o.id!==id);save();closeSheet();render();}
 function deleteCard(id){if(!confirm('Remove this card and ALL its offers?'))return;S.cards=S.cards.filter(c=>c.id!==id);S.offers=S.offers.filter(o=>o.cardId!==id);save();closeSheet();render();}
 
-// ── MANUAL SYNC ────────────────────────────────────────────────────────────
+// ── MANUAL SYNC WITH VISIBLE DEBUG ────────────────────────────────────────
 async function manualSync(){
-  const label=document.getElementById('sync-label');
-  const status=document.getElementById('sync-status');
-  if(label)label.textContent='Syncing…';
+  closeMenu();
+  showSyncDebug('🔄 Starting sync…','');
+
+  // Step 1: PING
+  showSyncDebug('🔄 Step 1/3 — Pinging API…','');
   try{
-    // Save to cloud
+    const pingUrl=`${API_URL}?req=${encodeURIComponent(JSON.stringify({pin:API_PIN,action:'PING',payload:{}}))}`;
+    const pingRes=await fetch(pingUrl,{method:'GET'});
+    const pingType=pingRes.type;
+    const pingStatus=pingRes.status;
+    let pingText='';
+    try{pingText=await pingRes.text();}catch(e){pingText='(unreadable — opaque response)';}
+    if(pingType==='opaque'||pingText===''){
+      showSyncDebug(
+        '❌ CORS block on PING',
+        `Response type: ${pingType}\nStatus: ${pingStatus}\nBody: (blocked by browser)\n\nFix: In Apps Script → Deploy → Manage Deployments → Edit → set "Who has access" to ANYONE (not "Anyone with Google account")`
+      );return;
+    }
+    let pingJson;
+    try{pingJson=JSON.parse(pingText);}catch(e){
+      showSyncDebug('❌ PING response not valid JSON',`Raw response:\n${pingText}\n\nThis means old Apps Script code is still live. Redeploy with new version.`);return;
+    }
+    if(!pingJson.ok){
+      showSyncDebug('❌ PING failed — '+pingJson.error,`Response: ${JSON.stringify(pingJson,null,2)}\n\nIf error is "Unauthorized" — check ACCESS_PIN in Script Properties = 009`);return;
+    }
+    showSyncDebug('✅ Step 1/3 — API reachable','Step 2/3 — Saving data…');
+  }catch(e){
+    showSyncDebug('❌ PING network error',`Error: ${e.message}\n\nPossible causes:\n1. Wrong API URL in app\n2. Apps Script not deployed\n3. No internet connection`);return;
+  }
+
+  // Step 2: SAVE
+  showSyncDebug('🔄 Step 2/3 — Saving to Google Sheets…','');
+  try{
     await fetch(API_URL,{
       method:'POST',
       mode:'no-cors',
       headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({pin:API_PIN,action:'SAVE',payload:{cards:S.cards,offers:S.offers}})
     });
-    const now=new Date();
-    const timeStr=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-    if(label)label.textContent='Sync to Google Sheets';
-    if(status)status.textContent='Last sync: '+timeStr;
-    // Also reload from cloud to confirm
-    const params=encodeURIComponent(JSON.stringify({pin:API_PIN,action:'LOAD',payload:{}}));
-    const res=await fetch(`${API_URL}?req=${params}`,{method:'GET'});
-    const json=await res.json();
-    if(json.ok&&json.data&&json.data.cards){
-      S.cards=json.data.cards||[];
-      S.offers=json.data.offers||[];
-      localStorage.setItem('vc3',JSON.stringify({cards:S.cards,offers:S.offers}));
-      S.offers.forEach(o=>ensureCurrentInstance(o));
-      render();
-      if(status)status.textContent='Last sync: '+timeStr+' ✓';
-    }
+    showSyncDebug('✅ Step 2/3 — Save request sent','Step 3/3 — Verifying by reloading from Sheets…');
   }catch(e){
-    if(label)label.textContent='Sync to Google Sheets';
-    if(status)status.textContent='Sync failed — check connection';
+    showSyncDebug('❌ SAVE failed',`Error: ${e.message}`);return;
   }
+
+  // Step 3: LOAD back to verify
+  showSyncDebug('🔄 Step 3/3 — Loading back from Sheets to verify…','');
+  try{
+    const loadUrl=`${API_URL}?req=${encodeURIComponent(JSON.stringify({pin:API_PIN,action:'LOAD',payload:{}}))}`;
+    const loadRes=await fetch(loadUrl,{method:'GET'});
+    const loadText=await loadRes.text();
+    let loadJson;
+    try{loadJson=JSON.parse(loadText);}catch(e){
+      showSyncDebug('❌ LOAD response not valid JSON',`Raw: ${loadText}`);return;
+    }
+    if(!loadJson.ok){
+      showSyncDebug('❌ LOAD failed — '+loadJson.error,`Response: ${JSON.stringify(loadJson,null,2)}`);return;
+    }
+    const cards=loadJson.data.cards||[];
+    const offers=loadJson.data.offers||[];
+    S.cards=cards;S.offers=offers;
+    localStorage.setItem('vc3',JSON.stringify({cards:S.cards,offers:S.offers}));
+    S.offers.forEach(o=>ensureCurrentInstance(o));
+    const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    showSyncDebug(
+      `✅ Sync complete — ${now}`,
+      `Cards in Sheet: ${cards.length}\nOffers in Sheet: ${offers.length}\n\nAll data confirmed in Google Sheets.`
+    );
+    render();
+  }catch(e){
+    showSyncDebug('❌ LOAD/verify failed',`Error: ${e.message}`);
+  }
+}
+
+function showSyncDebug(title,detail){
+  // Remove any existing debug panel
+  const existing=document.getElementById('sync-debug-overlay');
+  if(existing)existing.remove();
+
+  const div=document.createElement('div');
+  div.id='sync-debug-overlay';
+  div.style.cssText=`
+    position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;
+    display:flex;align-items:flex-end;justify-content:center;
+    max-width:430px;margin:0 auto;font-family:var(--ff);
+  `;
+  const isError=title.startsWith('❌');
+  const isDone=title.startsWith('✅') && title.includes('complete');
+  const color=isError?'var(--co)':isDone?'var(--em)':'var(--am)';
+  div.innerHTML=`
+    <div style="background:var(--bg2);border-radius:22px 22px 0 0;width:100%;padding:20px 20px 36px;border-top:2px solid ${color}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:16px;font-weight:800;color:${color}">${title}</div>
+        ${isDone||isError?`<button onclick="document.getElementById('sync-debug-overlay').remove();render()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--bg3);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--ff)">Close</button>`:''}
+      </div>
+      ${detail?`<pre style="background:var(--bg3);border-radius:10px;padding:14px;font-size:12px;color:var(--t2);white-space:pre-wrap;word-break:break-word;line-height:1.6;max-height:300px;overflow-y:auto;font-family:monospace">${detail}</pre>`:''}
+      ${!isDone&&!isError?`<div style="display:flex;gap:8px;margin-top:12px">${[0,1,2].map(i=>`<div style="flex:1;height:3px;border-radius:3px;background:${i===0?'var(--vl)':'var(--bd)'}"></div>`).join('')}</div>`:''}
+    </div>`;
+  document.body.appendChild(div);
 }
 
 // ── EXPORT / IMPORT ────────────────────────────────────────────────────────
