@@ -404,7 +404,7 @@ function getCurrentInstance(offer){
 
 // ── STATE ─────────────────────────────────────────────────────────────────
 // ── CLOUD CONFIG ───────────────────────────────────────────────────────────
-const API_URL = 'https://script.google.com/macros/s/AKfycbxUHArEeFadmbeWkhiJko6U30UWQbVYe2eKot7p_z_D3kvNs8leCsqkDzcxe5AT9ujS/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzY4Alu34jGF3KbYWnxEcBq8XaQ8M257f72Z7L_QLXbo0PLaUEiCiT5Knql1c0OMTLr/exec';
 const API_PIN = '0409';
 
 let S={tab:'cards',cards:[],offers:[],_selCat:null,_tradeable:false,_newCardImg:null,_selGrad:0,_offerCardId:null,_upcomingWindow:3};
@@ -1155,32 +1155,61 @@ async function importFromSheets(){
   closeMenu();
   showSyncDebug('🔄 Importing from Google Sheets…','Connecting to your Sheet…');
   try{
+    // Build a small GET request — no image data, no URL length problem
     const url=`${API_URL}?req=${encodeURIComponent(JSON.stringify({pin:API_PIN,action:'LOAD',payload:{}}))}`;
+
+    // Check URL length — warn if somehow still too long
+    if(url.length>7500){
+      showSyncDebug('❌ Import failed — request too long',`URL length: ${url.length} chars (limit ~8000)\nThis should not happen. Contact support.`);return;
+    }
+
     const res=await fetch(url,{method:'GET'});
     const text=await res.text();
     let json;
     try{json=JSON.parse(text);}catch(e){
-      showSyncDebug('❌ Import failed — bad response',`Raw response:\n${text}\n\nThe Apps Script may still be running old code. Redeploy with a new version.`);return;
+      showSyncDebug('❌ Import failed — bad response',
+        `Could not parse response as JSON.\nRaw (first 300 chars):\n${text.slice(0,300)}\n\nMost likely cause: Apps Script needs to be redeployed with a new version.`
+      );return;
     }
     if(!json.ok){
-      showSyncDebug('❌ Import failed — '+json.error,`Response: ${JSON.stringify(json,null,2)}\n\nIf "Unauthorized" — check ACCESS_PIN in Script Properties = ${API_PIN}`);return;
+      showSyncDebug('❌ Import failed — '+json.error,
+        `Response: ${JSON.stringify(json,null,2)}\n\nIf "Unauthorized" — check ACCESS_PIN in Script Properties = ${API_PIN}`
+      );return;
     }
     const cards=json.data.cards||[];
     const offers=json.data.offers||[];
     if(cards.length===0&&offers.length===0){
-      showSyncDebug('⚠️ Sheet is empty',`Google Sheet returned 0 cards and 0 offers.\n\nThis means either:\n1. You haven't exported to Sheets yet\n2. Sheet tab names are wrong (must be: cards, offers)\n3. Sheet headers are missing\n\nTry Export to Sheets first.`);return;
+      showSyncDebug('⚠️ Sheet is empty',
+        `Google Sheet returned 0 cards and 0 offers.\n\nCheck:\n1. Sheet tab names are exactly: cards, offers (lowercase)\n2. Row 1 has correct headers\n3. You have exported data at least once`
+      );return;
     }
+
+    // Merge images back from localStorage — images are not stored in Sheet
+    const localRaw=localStorage.getItem('vc3');
+    if(localRaw){
+      try{
+        const local=JSON.parse(localRaw);
+        const localCardMap={};
+        (local.cards||[]).forEach(c=>{localCardMap[c.id]=c.image||null;});
+        cards.forEach(c=>{
+          if(localCardMap[c.id]!==undefined)c.image=localCardMap[c.id];
+        });
+      }catch(e){/* no local data to merge */}
+    }
+
     S.cards=cards;S.offers=offers;
     localStorage.setItem('vc3',JSON.stringify({cards:S.cards,offers:S.offers}));
     S.offers.forEach(o=>ensureCurrentInstance(o));
     const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     showSyncDebug(
       `✅ Import complete — ${now}`,
-      `Cards loaded: ${cards.length}\nOffers loaded: ${offers.length}\n\nYour app is now updated with data from Google Sheets.`
+      `Cards loaded: ${cards.length}\nOffers loaded: ${offers.length}\n\nCard images were restored from local storage.\nYour app is now up to date with Google Sheets.`
     );
     render();
   }catch(e){
-    showSyncDebug('❌ Import failed — network error',`Error: ${e.message}\n\nCheck your internet connection and that the API URL is correct.`);
+    showSyncDebug('❌ Import failed — network error',
+      `Error: ${e.message}\n\nCheck your internet connection and that the API URL is correct.`
+    );
   }
 }
 
@@ -1210,6 +1239,42 @@ function exportToSheets(){
   setTimeout(()=>document.getElementById('export-passkey-input')?.focus(),100);
 }
 
+// ── FORM POST HELPER ───────────────────────────────────────────────────────
+// Sends data via a hidden iframe form POST — no CORS preflight, body never truncated
+// Apps Script reads this via e.parameter.data in doPost
+function formPost(url, jsonStr){
+  return new Promise((resolve)=>{
+    // Create a hidden iframe to receive the response (prevents page navigation)
+    const iframe=document.createElement('iframe');
+    iframe.name='vc-post-target';
+    iframe.style.display='none';
+    document.body.appendChild(iframe);
+
+    // Create a hidden form targeting the iframe
+    const form=document.createElement('form');
+    form.method='POST';
+    form.action=url;
+    form.target='vc-post-target';
+    form.style.display='none';
+
+    // Apps Script reads e.parameter.data in doPost
+    const input=document.createElement('input');
+    input.type='hidden';
+    input.name='data';
+    input.value=jsonStr;
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    // Submit and resolve after a delay (form POST is fire-and-forget cross-origin)
+    form.submit();
+    setTimeout(()=>{
+      document.body.removeChild(form);
+      document.body.removeChild(iframe);
+      resolve();
+    },2000);
+  });
+}
+
 async function confirmExport(){
   const input=document.getElementById('export-passkey-input');
   if(!input)return;
@@ -1221,46 +1286,63 @@ async function confirmExport(){
     setTimeout(()=>{input.style.borderColor='var(--bd)';input.placeholder='Enter passkey';},1500);
     return;
   }
-  // Passkey correct — proceed with export
-  showSyncDebug('🔄 Exporting to Google Sheets…','Sending your data…');
+
+  showSyncDebug('🔄 Exporting to Google Sheets…','Preparing data…');
+
+  // Strip images before sending — images stay in localStorage only
+  // Images can be 9KB+ each and will cause POST body truncation
+  const cardsForSheet=S.cards.map(c=>({...c,image:null}));
+  const offersForSheet=S.offers.map(o=>({...o}));
+
+  const payloadStr=JSON.stringify({pin:API_PIN,action:'SAVE',payload:{cards:cardsForSheet,offers:offersForSheet}});
+  const payloadKB=Math.round(payloadStr.length/1024);
+
   try{
-    // Step 1: PING first
+    // Step 1: PING
+    showSyncDebug('🔄 Step 1/3 — Checking API…',`Payload size: ${payloadKB}KB (images excluded — stored locally only)`);
     const pingUrl=`${API_URL}?req=${encodeURIComponent(JSON.stringify({pin:API_PIN,action:'PING',payload:{}}))}`;
     const pingRes=await fetch(pingUrl,{method:'GET'});
     const pingText=await pingRes.text();
     let pingJson;
     try{pingJson=JSON.parse(pingText);}catch(e){
-      showSyncDebug('❌ Export failed — API not responding',`Raw: ${pingText}\n\nRedeploy your Apps Script with a new version.`);return;
+      showSyncDebug('❌ Export failed — API not responding',`Raw: ${pingText}\n\nRedeploy Apps Script with a new version.`);return;
     }
     if(!pingJson.ok){
       showSyncDebug('❌ Export failed — '+pingJson.error,`Check ACCESS_PIN in Script Properties = ${API_PIN}`);return;
     }
-    // Step 2: SAVE
-    await fetch(API_URL,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({pin:API_PIN,action:'SAVE',payload:{cards:S.cards,offers:S.offers}})
-    });
+
+    // Step 2: SAVE via hidden form POST
+    // Using form POST (not fetch no-cors) because no-cors silently truncates POST bodies
+    // Form POSTs have no CORS preflight and body is always fully preserved
+    showSyncDebug('🔄 Step 2/3 — Sending to Google Sheets…',`Sending ${cardsForSheet.length} cards, ${offersForSheet.length} offers\nPayload: ${payloadKB}KB\nMethod: form POST`);
+    await formPost(API_URL, payloadStr);
+
     // Step 3: Verify by loading back
-    showSyncDebug('🔄 Verifying export…','Reading back from Sheet to confirm…');
-    await new Promise(r=>setTimeout(r,1500)); // small delay for Sheets to commit
+    showSyncDebug('🔄 Step 3/3 — Verifying…','Reading back from Sheet to confirm row count…');
+    await new Promise(r=>setTimeout(r,2000));
     const loadUrl=`${API_URL}?req=${encodeURIComponent(JSON.stringify({pin:API_PIN,action:'LOAD',payload:{}}))}`;
     const loadRes=await fetch(loadUrl,{method:'GET'});
     const loadText=await loadRes.text();
     let loadJson;
     try{loadJson=JSON.parse(loadText);}catch(e){
-      showSyncDebug('⚠️ Exported but could not verify',`Data was sent but Sheet response was not readable.\nCheck your Google Sheet manually.`);return;
+      showSyncDebug('⚠️ Sent but could not verify',`Sheet response not readable.\nRaw: ${loadText}\nCheck your Sheet manually — look for ${cardsForSheet.length} cards.`);return;
     }
     if(!loadJson.ok){
-      showSyncDebug('⚠️ Exported but verify failed',`Error: ${loadJson.error}`);return;
+      showSyncDebug('⚠️ Sent but verify failed',`Error: ${loadJson.error}`);return;
     }
-    const cards=loadJson.data.cards||[];
-    const offers=loadJson.data.offers||[];
+    const savedCards=loadJson.data.cards||[];
+    const savedOffers=loadJson.data.offers||[];
     const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+    if(savedCards.length!==cardsForSheet.length||savedOffers.length!==offersForSheet.length){
+      showSyncDebug(
+        `⚠️ Partial export — ${now}`,
+        `Expected: ${cardsForSheet.length} cards, ${offersForSheet.length} offers\nIn Sheet: ${savedCards.length} cards, ${savedOffers.length} offers\n\nSome rows may still be missing.\nTry exporting again — if issue persists, check Apps Script Executions log for errors.`
+      );return;
+    }
     showSyncDebug(
       `✅ Export complete — ${now}`,
-      `Cards saved to Sheet: ${cards.length}\nOffers saved to Sheet: ${offers.length}\n\nGoogle Sheet is now up to date with your app data.`
+      `Cards in Sheet: ${savedCards.length} ✓\nOffers in Sheet: ${savedOffers.length} ✓\n\nNote: Card images are stored locally only (not in Sheet) to keep sync fast and reliable.`
     );
   }catch(e){
     showSyncDebug('❌ Export failed — network error',`Error: ${e.message}`);
