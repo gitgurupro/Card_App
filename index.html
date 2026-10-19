@@ -1239,40 +1239,39 @@ function exportToSheets(){
   setTimeout(()=>document.getElementById('export-passkey-input')?.focus(),100);
 }
 
-// ── FORM POST HELPER ───────────────────────────────────────────────────────
-// Sends data via a hidden iframe form POST — no CORS preflight, body never truncated
-// Apps Script reads this via e.parameter.data in doPost
-function formPost(url, jsonStr){
-  return new Promise((resolve)=>{
-    // Create a hidden iframe to receive the response (prevents page navigation)
-    const iframe=document.createElement('iframe');
-    iframe.name='vc-post-target';
-    iframe.style.display='none';
-    document.body.appendChild(iframe);
+// ── CHUNKED GET SAVE ───────────────────────────────────────────────────────
+// Splits payload into small chunks, sends each as a GET request
+// Apps Script stores chunks in CacheService and assembles on final chunk
+// This is the only method that reliably works with Apps Script CORS restrictions:
+//   - No POST body truncation (was happening with no-cors fetch)
+//   - No form redirect body loss (302 redirect strips POST body)
+//   - No URL length limits (each chunk is ~4000 chars, well under 8000 limit)
+const CHUNK_SIZE = 4000;
 
-    // Create a hidden form targeting the iframe
-    const form=document.createElement('form');
-    form.method='POST';
-    form.action=url;
-    form.target='vc-post-target';
-    form.style.display='none';
+async function chunkedSave(payloadStr, onProgress){
+  const sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  const total = Math.ceil(payloadStr.length / CHUNK_SIZE);
 
-    // Apps Script reads e.parameter.data in doPost
-    const input=document.createElement('input');
-    input.type='hidden';
-    input.name='data';
-    input.value=jsonStr;
-    form.appendChild(input);
-    document.body.appendChild(form);
+  for(let i = 0; i < total; i++){
+    const slice = payloadStr.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+    const chunk = {pin: API_PIN, id: sessionId, index: i, total: total, data: slice};
+    const url = `${API_URL}?chunk=${encodeURIComponent(JSON.stringify(chunk))}`;
 
-    // Submit and resolve after a delay (form POST is fire-and-forget cross-origin)
-    form.submit();
-    setTimeout(()=>{
-      document.body.removeChild(form);
-      document.body.removeChild(iframe);
-      resolve();
-    },2000);
-  });
+    if(onProgress) onProgress(i + 1, total);
+
+    const res = await fetch(url, {method:'GET'});
+    const text = await res.text();
+    let json;
+    try{ json = JSON.parse(text); }
+    catch(e){ throw new Error(`Chunk ${i+1}/${total} bad response: ${text.slice(0,100)}`); }
+    if(!json.ok) throw new Error(`Chunk ${i+1}/${total} failed: ${json.error}`);
+
+    // Last chunk response contains the final save confirmation
+    if(i === total - 1){
+      if(json.data && json.data.status === 'saved') return json.data;
+      throw new Error(`Final chunk acknowledged but save status unclear: ${JSON.stringify(json.data)}`);
+    }
+  }
 }
 
 async function confirmExport(){
@@ -1311,41 +1310,28 @@ async function confirmExport(){
       showSyncDebug('❌ Export failed — '+pingJson.error,`Check ACCESS_PIN in Script Properties = ${API_PIN}`);return;
     }
 
-    // Step 2: SAVE via hidden form POST
-    // Using form POST (not fetch no-cors) because no-cors silently truncates POST bodies
-    // Form POSTs have no CORS preflight and body is always fully preserved
-    showSyncDebug('🔄 Step 2/3 — Sending to Google Sheets…',`Sending ${cardsForSheet.length} cards, ${offersForSheet.length} offers\nPayload: ${payloadKB}KB\nMethod: form POST`);
-    await formPost(API_URL, payloadStr);
+    // Step 2 + 3: SAVE via chunked GET — Apps Script confirms save on final chunk
+    const totalChunks=Math.ceil(payloadStr.length/CHUNK_SIZE);
+    showSyncDebug('🔄 Step 2/3 — Sending chunks…',
+      `Cards: ${cardsForSheet.length}  Offers: ${offersForSheet.length}\nPayload: ${payloadKB}KB  Chunks: ${totalChunks}`);
 
-    // Step 3: Verify by loading back
-    showSyncDebug('🔄 Step 3/3 — Verifying…','Reading back from Sheet to confirm row count…');
-    await new Promise(r=>setTimeout(r,2000));
-    const loadUrl=`${API_URL}?req=${encodeURIComponent(JSON.stringify({pin:API_PIN,action:'LOAD',payload:{}}))}`;
-    const loadRes=await fetch(loadUrl,{method:'GET'});
-    const loadText=await loadRes.text();
-    let loadJson;
-    try{loadJson=JSON.parse(loadText);}catch(e){
-      showSyncDebug('⚠️ Sent but could not verify',`Sheet response not readable.\nRaw: ${loadText}\nCheck your Sheet manually — look for ${cardsForSheet.length} cards.`);return;
+    let saveResult;
+    try{
+      saveResult=await chunkedSave(payloadStr,(sent,tot)=>{
+        showSyncDebug(`🔄 Sending chunk ${sent}/${tot}…`,
+          `Cards: ${cardsForSheet.length}  Offers: ${offersForSheet.length}\nPayload: ${payloadKB}KB`);
+      });
+    }catch(chunkErr){
+      showSyncDebug('❌ Export failed during upload',`${chunkErr.message}\n\nTry again. If it keeps failing, check Apps Script Executions log.`);return;
     }
-    if(!loadJson.ok){
-      showSyncDebug('⚠️ Sent but verify failed',`Error: ${loadJson.error}`);return;
-    }
-    const savedCards=loadJson.data.cards||[];
-    const savedOffers=loadJson.data.offers||[];
+
     const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-
-    if(savedCards.length!==cardsForSheet.length||savedOffers.length!==offersForSheet.length){
-      showSyncDebug(
-        `⚠️ Partial export — ${now}`,
-        `Expected: ${cardsForSheet.length} cards, ${offersForSheet.length} offers\nIn Sheet: ${savedCards.length} cards, ${savedOffers.length} offers\n\nSome rows may still be missing.\nTry exporting again — if issue persists, check Apps Script Executions log for errors.`
-      );return;
-    }
     showSyncDebug(
       `✅ Export complete — ${now}`,
-      `Cards in Sheet: ${savedCards.length} ✓\nOffers in Sheet: ${savedOffers.length} ✓\n\nNote: Card images are stored locally only (not in Sheet) to keep sync fast and reliable.`
+      `Cards in Sheet: ${saveResult.cards} ✓\nOffers in Sheet: ${saveResult.offers} ✓\nSaved at: ${saveResult.savedAt}\n\nCard images are stored locally only — not in Sheet.`
     );
   }catch(e){
-    showSyncDebug('❌ Export failed — network error',`Error: ${e.message}`);
+    showSyncDebug('❌ Export failed',`Error: ${e.message}`);
   }
 }
 
