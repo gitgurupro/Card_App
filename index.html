@@ -1252,9 +1252,10 @@ async function chunkedSave(payloadStr, onProgress){
   const sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
   const total = Math.ceil(payloadStr.length / CHUNK_SIZE);
 
+  // Step 1: Send all chunks
   for(let i = 0; i < total; i++){
     const slice = payloadStr.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
-    const chunk = {pin: API_PIN, id: sessionId, index: i, total: total, data: slice};
+    const chunk = {pin:API_PIN, id:sessionId, index:i, total:total, data:slice};
     const url = `${API_URL}?chunk=${encodeURIComponent(JSON.stringify(chunk))}`;
 
     if(onProgress) onProgress(i + 1, total);
@@ -1263,15 +1264,41 @@ async function chunkedSave(payloadStr, onProgress){
     const text = await res.text();
     let json;
     try{ json = JSON.parse(text); }
-    catch(e){ throw new Error(`Chunk ${i+1}/${total} bad response: ${text.slice(0,100)}`); }
+    catch(e){ throw new Error(`Chunk ${i+1}/${total} — bad response:\n${text.slice(0,200)}`); }
     if(!json.ok) throw new Error(`Chunk ${i+1}/${total} failed: ${json.error}`);
 
-    // Last chunk response contains the final save confirmation
-    if(i === total - 1){
-      if(json.data && json.data.status === 'saved') return json.data;
-      throw new Error(`Final chunk acknowledged but save status unclear: ${JSON.stringify(json.data)}`);
-    }
+    // If any chunk triggers the save (all chunks already in cache), return immediately
+    if(json.data && json.data.status === 'saved') return json.data;
   }
+
+  // Step 2: All chunks sent — send a final "assemble" request to trigger save
+  // This handles the case where chunks arrive but none triggered auto-assembly
+  if(onProgress) onProgress(total, total);
+  const assembleChunk = {pin:API_PIN, id:sessionId, index:total-1, total:total, data:''};
+  // Send an explicit assemble trigger by re-sending last chunk index with empty data
+  // Apps Script will find all chunks in cache and assemble
+  const triggerUrl = `${API_URL}?chunk=${encodeURIComponent(JSON.stringify(assembleChunk))}`;
+  const triggerRes = await fetch(triggerUrl, {method:'GET'});
+  const triggerText = await triggerRes.text();
+  let triggerJson;
+  try{ triggerJson = JSON.parse(triggerText); }
+  catch(e){ throw new Error(`Assembly trigger bad response:\n${triggerText.slice(0,200)}`); }
+  if(!triggerJson.ok) throw new Error(`Assembly failed: ${triggerJson.error}`);
+  if(triggerJson.data && triggerJson.data.status === 'saved') return triggerJson.data;
+
+  // Step 3: Wait briefly and poll once more
+  await new Promise(r=>setTimeout(r,2000));
+  const pollChunk = {pin:API_PIN, id:sessionId, index:0, total:total, data:''};
+  const pollUrl = `${API_URL}?chunk=${encodeURIComponent(JSON.stringify(pollChunk))}`;
+  const pollRes = await fetch(pollUrl, {method:'GET'});
+  const pollText = await pollRes.text();
+  let pollJson;
+  try{ pollJson = JSON.parse(pollText); }
+  catch(e){ throw new Error(`Poll bad response:\n${pollText.slice(0,200)}`); }
+  if(!pollJson.ok) throw new Error(`Poll failed: ${pollJson.error}`);
+  if(pollJson.data && pollJson.data.status === 'saved') return pollJson.data;
+
+  throw new Error(`All ${total} chunks sent but assembly not confirmed.\nLast response: ${JSON.stringify(pollJson.data)}\n\nCheck Apps Script Executions log for errors.`);
 }
 
 async function confirmExport(){
