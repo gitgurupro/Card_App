@@ -405,7 +405,7 @@ function getCurrentInstance(offer){
 
 // ── STATE ─────────────────────────────────────────────────────────────────
 // ── CLOUD CONFIG ───────────────────────────────────────────────────────────
-const API_URL = 'https://script.google.com/macros/s/AKfycby2MCiQJCt6J5p2rrcyYlqMKNB5YWWTTGx44JX9UlEOACTtO-wm0dtVZKqhlHKQYUNr/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzY4Alu34jGF3KbYWnxEcBq8XaQ8M257f72Z7L_QLXbo0PLaUEiCiT5Knql1c0OMTLr/exec';
 const API_PIN = '0409';
 
 let S={tab:'cards',cards:[],offers:[],_selCat:null,_tradeable:false,_newCardImg:null,_selGrad:0,_offerCardId:null,_upcomingWindow:3};
@@ -1302,7 +1302,8 @@ async function confirmExport(){
   const cardsForSheet=S.cards.map(c=>({...c,image:null}));
   const offersForSheet=S.offers.map(o=>({...o}));
 
-  const payloadStr=JSON.stringify({pin:API_PIN,action:'SAVE',payload:{cards:cardsForSheet,offers:offersForSheet}});
+  // Only cards and offers — pin and action go in the URL params, not in the compressed data
+  const payloadStr=JSON.stringify({cards:cardsForSheet,offers:offersForSheet});
   const payloadKB=Math.round(payloadStr.length/1024);
 
   try{
